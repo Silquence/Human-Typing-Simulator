@@ -10,7 +10,7 @@ time.sleep(0.5)
 
 def typo_generator(frequency): #0-100 5 is best
     if random.randint(0,100)<frequency:
-        err_length = random.randint(1,5)
+        err_length = random.randint(1,4)
         for i in range(0,err_length):
             pyautogui.write(chr(random.randint(97,122)))
         for i in range(0,err_length):
@@ -24,7 +24,7 @@ def type(file):
         word = line.split()
         for i in word:
             for j in i:
-                typo_generator(5)
+                typo_generator(2.8)
                 pyautogui.write(j)
                 terminate(original_x, original_y)
             pyautogui.write(" ")
