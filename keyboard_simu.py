@@ -10,7 +10,7 @@ time.sleep(0.5)
 
 def typo_generator(frequency): #0-100 5 is best
     if random.randint(0,100)<frequency:
-        err_length = random.randint(1,10)
+        err_length = random.randint(1,5)
         for i in range(0,err_length):
             pyautogui.write(chr(random.randint(97,122)))
         for i in range(0,err_length):
