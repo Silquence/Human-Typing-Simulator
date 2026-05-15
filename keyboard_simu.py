@@ -67,13 +67,21 @@ typo_map = {
         "B": ["V", "G", "N"],
         "N": ["B", "H", "M"],
         "M": ["N", "J"],
+        #special characters
+        " ": [" "],
+        ",": ["."],
+        ".": [","],
+        "?": ["/"]
     }
 
 def typo_writer(typo_map, total_count, current_count, last_chr):
     if current_count<total_count:
         possible_typo = typo_map[last_chr]
         if random.randint(0,100) < 90:
-            typo = random.choice(possible_typo)
+            try:
+                typo = random.choice(possible_typo)
+            except KeyError:
+                typo = chr(random.randint(97,122))
         else:
             typo = chr(random.randint(97,122))
         pyautogui.write(typo)
@@ -85,16 +93,17 @@ def typo_eraser(total_count, pause_time):
         pyautogui.press("backspace")
     time.sleep(pause_time)
 
-def typo_generator(typo_map,total_count,last_chr):
-    typo_writer(typo_map,total_count,0,last_chr)
-    time.sleep(0.5)
-    typo_eraser(total_count,0.17)
+def typo_generator(typo_map,total_count,last_chr,rate):
+    if random.randint(0,100)<rate:
+        typo_writer(typo_map,total_count,0,last_chr)
+        time.sleep(0.17)
+        typo_eraser(total_count,0.17)
 
-
-
-def pause(frequency):
-    if random.randint(0,500)<frequency:
+def speed_control(speed,pause_rate,last_chr): #0-10
+    if random.randint(0,500)<pause_rate:
         time.sleep(random.randint(1,3))
+    if last_chr in [",",".","?"]:
+        time.sleep(speed/6)
 
 def type(file):
     original_x, original_y = pyautogui.position()
@@ -102,12 +111,9 @@ def type(file):
         word = line.split()
         for i in word:
             for j in i:
-                #error simualtion
-                typo_generator(2.8) #best value 2.8
-                pause(2)            #best value ?
-
+                typo_generator(typo_map,random.randint(1,4),j,1.8)           #best value ?
                 pyautogui.write(j)
-
+                speed_control(1, 1, j)
                 #exit logic
                 axis = pyautogui.position()
                 if axis[0] > original_x + 30 or axis[0] < original_x - 30 or axis[1] > original_y + 30 or axis[
@@ -118,13 +124,10 @@ def type(file):
                         original_x, original_y = pyautogui.position()
 
             pyautogui.write(" ")
-        pyautogui.keyDown('enter')
-        pyautogui.keyUp=('enter')
+        pyautogui.press('enter')
 
 #below is the execution code
-# cursor_initializer()
-# with open("doc.docx", "r") as f:
-#      type(f)
-
 cursor_initializer()
-typo_generator(typo_map,5,"a")
+with open("doc.docx", "r") as f:
+     type(f)
+
