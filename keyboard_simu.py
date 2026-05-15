@@ -94,7 +94,7 @@ def typo_eraser(total_count, pause_time):
     time.sleep(pause_time)
 
 def typo_generator(typo_map,total_count,last_chr,rate):
-    if random.randint(0,100)<rate:
+    if random.randint(0,200)<rate:
         typo_writer(typo_map,total_count,0,last_chr)
         time.sleep(0.17)
         typo_eraser(total_count,0.17)
