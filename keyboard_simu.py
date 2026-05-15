@@ -26,25 +26,24 @@ def type(file):
         word = line.split()
         for i in word:
             for j in i:
+                #error simualtion
                 typo_generator(2.8)
                 pause(2)
+
                 pyautogui.write(j)
 
-
+                #exit logic
                 axis = pyautogui.position()
                 if axis[0] > original_x + 30 or axis[0] < original_x - 30 or axis[1] > original_y + 30 or axis[
                     1] < original_y - 30:
-                    if pyautogui.confirm("Stop?", buttons=["Yes", "No"]) == "Yes":
+                    if pyautogui.confirm("stop?", buttons=["Yes", "No"]) == "Yes":
                         sys.exit()
                     else:
                         original_x, original_y = pyautogui.position()
 
-
             pyautogui.write(" ")
         pyautogui.keyDown('enter')
         pyautogui.keyUp('enter')
-
-
 
 
 #below is the execution code
