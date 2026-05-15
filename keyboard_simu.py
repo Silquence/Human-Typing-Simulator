@@ -2,7 +2,70 @@ import pyautogui
 import time
 import random
 import sys
+import customtkinter as ctk
+import threading
 
+Error_rate = 50
+Speed = 50
+#below is the GUI code
+ctk.set_appearance_mode("dark")
+ctk.set_default_color_theme("blue")
+root = ctk.CTk()
+root.title("Human Typing Simulator")
+root.geometry("500x350")
+root.resizable(False, False)
+main_frame = ctk.CTkFrame(root,corner_radius=20)
+main_frame.pack(padx=20,pady=20,fill="both",expand=True)
+title_label = ctk.CTkLabel(main_frame,text="Typing Configuration",font=("Segoe UI", 26, "bold"))
+title_label.pack(pady=(20, 25))
+
+#typing error control pulley
+err_rate_title = ctk.CTkLabel(main_frame,text="Error Rate",font=("Segoe UI", 16))
+err_rate_title.pack(anchor="w", padx=30)
+err_rate = ctk.CTkLabel(main_frame,text="50",font=("Segoe UI", 14))
+err_rate.pack(anchor="e", padx=30)
+
+def get_err_rate(value):
+    err_rate.configure(text=str(int(value)))
+    global Error_rate
+    Error_rate = value
+    print(Error_rate)
+
+err_rate_slider = ctk.CTkSlider(main_frame,from_=0,to=50,command=get_err_rate)
+err_rate_slider.set(10)
+err_rate_slider.pack(fill="x",padx=30,pady=(5, 20))
+
+#typing speed pulley
+speed_title = ctk.CTkLabel(main_frame,text="Typing Speed",font=("Segoe UI", 16))
+speed_title.pack(anchor="w", padx=30)
+speed = ctk.CTkLabel(main_frame,text="50",font=("Segoe UI", 14))
+speed.pack(anchor="e", padx=30)
+
+def get_speed(value):
+    speed.configure(text=str(int(value)))
+    global Speed
+    Speed = value
+    print(Speed)
+
+speed_slider = ctk.CTkSlider(main_frame,from_=0,to=50,command=get_speed)
+speed_slider.set(10)
+speed_slider.pack(fill="x",padx=30,pady=(5, 30))
+
+#confirm configuration
+def confirm_speed():
+    speed_slider.configure(state="disabled")
+    root.destroy()
+confirm_speed_button = ctk.CTkButton(
+    main_frame,
+    text="confirm configuration",
+    command=confirm_speed,
+    width=100,
+    height=40,
+    corner_radius=20
+)
+confirm_speed_button.place(x=150, y=260)
+
+#below is the backend code
 typo_map = {
         # Row 1
         "q": ["w", "a"],
@@ -111,11 +174,9 @@ def speed_control(pause_time,pause_rate,last_chr): #0-10
     if last_chr in [",",".","?"]:
         time.sleep(random.uniform(pause_time/18,pause_time/2))
 
-def type(file,dynamic_freq:bool,dynamic_typo:bool):
+def type(file,pause_time,error_rate,dynamic_freq:bool,dynamic_typo:bool):
     original_x, original_y = pyautogui.position()
     count = 0
-    pause_time = 3
-    error_rate = 20
     for line in file:
         word = line.split()
         for i in word:
@@ -145,8 +206,11 @@ def type(file,dynamic_freq:bool,dynamic_typo:bool):
             pyautogui.write(" ")
         pyautogui.press('enter')
 
+
 #below is the execution code
+root.mainloop()
 cursor_initializer()
 with open("doc.docx", "r") as f:
-     type(f, False,False)
+     type(f,Speed,Error_rate, True,True)
+
 
