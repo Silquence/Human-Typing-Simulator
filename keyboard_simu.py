@@ -21,7 +21,9 @@ def typo_generator(frequency): #0-100 5 is best
         for i in range(0,err_length):
             pyautogui.press('backspace')
 
-
+def pause(frequency):
+    if random.randint(0,500)<frequency:
+        time.sleep(random.randint(1,3))
 
 def type(file):
     original_x, original_y = pyautogui.position()
@@ -30,6 +32,7 @@ def type(file):
         for i in word:
             for j in i:
                 typo_generator(2.8)
+                pause(2)
                 pyautogui.write(j)
                 terminate(original_x, original_y)
             pyautogui.write(" ")
@@ -45,7 +48,7 @@ def terminate(original_x,original_y):
 
 
 #below is the execution code
-# with open("doc.docx", "r") as f:
-#      type(f)
-
 cursor_initializer()
+with open("doc.docx", "r") as f:
+     type(f)
+
