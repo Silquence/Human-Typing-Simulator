@@ -1,1 +1,1 @@
-Human Typing Simulator
+This porgram simulates human typing input of selected text content.
