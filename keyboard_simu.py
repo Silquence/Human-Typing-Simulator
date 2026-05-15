@@ -109,7 +109,7 @@ def speed_control(pause_time,pause_rate,last_chr): #0-10
     if probability(pause_rate):
         time.sleep(random.uniform(1,3))
     if last_chr in [",",".","?"]:
-        time.sleep(pause_time/6)
+        time.sleep(random.uniform(pause_time/18,pause_time/2))
 
 def type(file,dynamic_freq:bool,dynamic_typo:bool):
     original_x, original_y = pyautogui.position()
@@ -131,7 +131,6 @@ def type(file,dynamic_freq:bool,dynamic_typo:bool):
 
                 #this section is for debug only, delete before release======
                 print(pause_time,error_rate, sep = " ")
-
                 #===========================================================
 
                 #exit logic
