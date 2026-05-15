@@ -105,11 +105,11 @@ def typo_generator(typo_map,total_count,last_chr,rate):
         time.sleep(0.17)
         typo_eraser(total_count,0.17)
 
-def speed_control(speed,pause_rate,last_chr): #0-10
+def speed_control(pause_time,pause_rate,last_chr): #0-10
     if probability(pause_rate):
-        time.sleep(random.randint(1,3))
+        time.sleep(random.uniform(1,3))
     if last_chr in [",",".","?"]:
-        time.sleep(speed/6)
+        time.sleep(pause_time/6)
 
 def type(file,dynamic_freq:bool,dynamic_typo:bool):
     original_x, original_y = pyautogui.position()
