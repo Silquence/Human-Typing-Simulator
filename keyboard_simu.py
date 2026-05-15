@@ -3,16 +3,6 @@ import time
 import random
 import sys
 
-def cursor_initializer():
-    screen_width, screen_height = pyautogui.size()
-    pyautogui.moveTo(screen_width*3/4,screen_height*1/2)
-    pyautogui.click()
-
-def probability(probability):
-    if random.uniform(0,100)<probability:
-        return True
-    else:
-        return False
 typo_map = {
         # Row 1
         "q": ["w", "a"],
@@ -78,6 +68,17 @@ typo_map = {
         ".": [","],
         "?": ["/"]
     }
+
+def cursor_initializer():
+    screen_width, screen_height = pyautogui.size()
+    pyautogui.moveTo(screen_width*3/4,screen_height*1/2)
+    pyautogui.click()
+
+def probability(probability):
+    if random.uniform(0,100)<probability:
+        return True
+    else:
+        return False
 
 def typo_writer(typo_map, total_count, current_count, last_chr):
     if current_count<total_count:
