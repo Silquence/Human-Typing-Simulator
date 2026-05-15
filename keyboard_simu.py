@@ -15,6 +15,7 @@ def typo_generator(frequency): #0-100 5 is best
             pyautogui.write(chr(random.randint(97,122)))
         for i in range(0,err_length):
             pyautogui.press('backspace')
+        time.sleep(0.18)
 
 def pause(frequency):
     if random.randint(0,500)<frequency:
@@ -27,7 +28,7 @@ def type(file):
         for i in word:
             for j in i:
                 #error simualtion
-                typo_generator(2.8)
+                typo_generator(2.8) #best value 2.8
                 pause(2)
 
                 pyautogui.write(j)
