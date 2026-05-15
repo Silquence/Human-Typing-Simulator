@@ -8,6 +8,11 @@ def cursor_initializer():
     pyautogui.moveTo(screen_width*3/4,screen_height*1/2)
     pyautogui.click()
 
+def probability(probability):
+    if random.uniform(0,100)<probability:
+        return True
+    else:
+        return False
 typo_map = {
         # Row 1
         "q": ["w", "a"],
@@ -77,7 +82,7 @@ typo_map = {
 def typo_writer(typo_map, total_count, current_count, last_chr):
     if current_count<total_count:
         possible_typo = typo_map[last_chr]
-        if random.randint(0,100) < 90:
+        if probability(90):
             try:
                 typo = random.choice(possible_typo)
             except KeyError:
@@ -94,30 +99,44 @@ def typo_eraser(total_count, pause_time):
     time.sleep(pause_time)
 
 def typo_generator(typo_map,total_count,last_chr,rate):
-    if random.randint(0,200)<rate:
+    if probability(rate):
         typo_writer(typo_map,total_count,0,last_chr)
         time.sleep(0.17)
         typo_eraser(total_count,0.17)
 
 def speed_control(speed,pause_rate,last_chr): #0-10
-    if random.randint(0,500)<pause_rate:
+    if probability(pause_rate):
         time.sleep(random.randint(1,3))
     if last_chr in [",",".","?"]:
         time.sleep(speed/6)
 
-def type(file):
+def type(file,dynamic_freq:bool,dynamic_typo:bool):
     original_x, original_y = pyautogui.position()
+    count = 0
+    pause_time = 3
+    error_rate = 20
     for line in file:
         word = line.split()
         for i in word:
             for j in i:
-                typo_generator(typo_map,random.randint(1,4),j,1.8)           #best value ?
+                if dynamic_typo == True:
+                    error_rate += count/1000000
+                typo_generator(typo_map,random.randint(1,4),j,error_rate)
                 pyautogui.write(j)
-                speed_control(1, 1, j)
+                count += 1
+                if dynamic_freq == True:
+                    pause_time += count/1000000
+                speed_control(pause_time, 2, j)
+
+                #this section is for debug only, delete before release======
+                print(pause_time,error_rate, sep = " ")
+
+                #===========================================================
+
                 #exit logic
                 axis = pyautogui.position()
-                if axis[0] > original_x + 30 or axis[0] < original_x - 30 or axis[1] > original_y + 30 or axis[
-                    1] < original_y - 30:
+                if (axis[0] > original_x + 30 or axis[0] < original_x - 30
+                        or axis[1] > original_y + 30 or axis[1] < original_y - 30):
                     if pyautogui.confirm("stop?", buttons=["Yes", "No"]) == "Yes":
                         sys.exit()
                     else:
@@ -129,5 +148,5 @@ def type(file):
 #below is the execution code
 cursor_initializer()
 with open("doc.docx", "r") as f:
-     type(f)
+     type(f, False,False)
 

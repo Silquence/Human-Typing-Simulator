@@ -1,5 +1,4 @@
-待实现功能:提升最后一个正确字母之后，在键盘上正确字母周围字母作为错误字母打出的概率
+待实现功能:
 
-1.include space into typos
-2.wrong comma
-3.custum floating input speed.
+1.随着时间推移，错误率变高的可选功能
+2.概率触发器的统一管理。
