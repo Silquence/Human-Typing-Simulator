@@ -3,10 +3,15 @@ import time
 import random
 import sys
 
-pyautogui.moveTo(1200,450)
-time.sleep(0.5)
-pyautogui.click()
-time.sleep(0.5)
+# pyautogui.moveTo(1200,450)
+# time.sleep(0.5)
+# pyautogui.click()
+# time.sleep(0.5)
+
+def cursor_initializer():
+    screen_width, screen_height = pyautogui.size()
+    pyautogui.moveTo(screen_width*3/4,screen_height*1/2)
+    pyautogui.click()
 
 def typo_generator(frequency): #0-100 5 is best
     if random.randint(0,100)<frequency:
@@ -40,6 +45,7 @@ def terminate(original_x,original_y):
 
 
 #below is the execution code
-with open("doc.docx", "r") as f:
-     type(f)
+# with open("doc.docx", "r") as f:
+#      type(f)
 
+cursor_initializer()
