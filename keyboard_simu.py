@@ -219,19 +219,19 @@ def speed_control(pause_time,pause_rate,last_chr): #0-10
     if last_chr in [",",".","?"]:
         time.sleep(random.uniform(pause_time/18,pause_time/2))
 
-def type(file,pause_time,error_rate,dynamic_freq:bool,dynamic_typo:bool):
+def type(file,pause_time,error_rate,dynamic_spd:bool,dynamic_err:bool):
     original_x, original_y = pyautogui.position()
     count = 0
     for line in file:
         word = line.split()
         for i in word:
             for j in i:
-                if dynamic_typo == True:
+                if dynamic_err == True:
                     error_rate += count/1000000
                 typo_generator(typo_map,random.randint(1,4),j,error_rate)
                 pyautogui.write(j)
                 count += 1
-                if dynamic_freq == True:
+                if dynamic_spd == True:
                     pause_time += count/1000000
                 speed_control(pause_time, 2, j)
 
@@ -254,8 +254,8 @@ def type(file,pause_time,error_rate,dynamic_freq:bool,dynamic_typo:bool):
 
 #below is the execution code
 root.mainloop()
-# cursor_initializer()
-# with open("doc.docx", "r") as f:
-#      type(f,Speed,Error_rate, True,True)
+cursor_initializer()
+with open("doc.docx", "r") as f:
+     type(f,Speed,Error_rate, Dynamic_Speed,Dynamic_err_rate)
 
 
