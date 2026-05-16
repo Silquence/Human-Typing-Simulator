@@ -31,15 +31,15 @@ ctk.set_appearance_mode("light")
 ctk.set_default_color_theme("green")
 root = ctk.CTk()
 root.title("Human Typing Simulator")
-root.geometry("800x400")
+root.geometry("600x400")
 root.resizable(False, False)
-main_frame = ctk.CTkFrame(root, corner_radius=20)
+main_frame = ctk.CTkFrame(root, corner_radius=20,fg_color="#ebebeb")
 main_frame.pack(padx=20, pady=20, fill="both", expand=True)
-title_label = ctk.CTkLabel(main_frame,text="Typing Configuration",font=("Segoe UI", 26, "bold"))
+title_label = ctk.CTkLabel(main_frame,text="CONGIGURATION",font=("Times New Roman", 26, "bold"))
 title_label.pack(pady=(20, 25))
 
 # Error Rate Slider
-err_rate_title = ctk.CTkLabel(main_frame,text="Error Rate",font=("Segoe UI", 16))
+err_rate_title = ctk.CTkLabel(main_frame,text="Error Rate",font=("Times New Roman", 16, "bold"))
 err_rate_title.pack(anchor="w", padx=30)
 
 def get_err_rate(value):
@@ -56,7 +56,7 @@ err_rate_slider.configure(progress_color=slider_color(Error_rate,max_rate))
 err_rate_slider.pack(fill="x",padx=30,pady=(5, 20))
 
 # Speed Slider
-speed_title = ctk.CTkLabel(main_frame,text="Typing Speed",font=("Segoe UI", 16))
+speed_title = ctk.CTkLabel(main_frame,text="Typing Speed",font=("Times New Roman", 16, "bold"))
 speed_title.pack(anchor="w", padx=30)
 
 def get_speed(value):
@@ -76,14 +76,15 @@ def confirm_speed():
     root.destroy()
 confirm_speed_button = ctk.CTkButton(
     main_frame,
-    text="confirm configuration",
+    text="CONFIRM",
     command=confirm_speed,
     width=100,
     height=40,
     corner_radius=20,
     fg_color="#678DC6",
+    font = ("Times New Roman", 16, "bold")
 )
-confirm_speed_button.place(x=550, y=285)
+confirm_speed_button.place(x=380, y=255)
 
 # Dynamic Switches t1: dyna err, t2: dyna speed
 def toggle_t1():
@@ -100,15 +101,17 @@ toggle_t1_button = ctk.CTkSwitch(
     main_frame,
     text="Dynamic Error Rate",
     command=toggle_t1,
+    font = ("Times New Roman", 16, "bold")
 )
-toggle_t1_button.place(x=30, y=270)
+toggle_t1_button.place(x=30, y=240)
 
 toggle_t2_button = ctk.CTkSwitch(
     main_frame,
     text="Dynamic Speed",
     command=toggle_t2,
+    font = ("Times New Roman", 16, "bold")
 )
-toggle_t2_button.place(x=30, y=320)
+toggle_t2_button.place(x=30, y=290)
 
 #below is the backend code
 typo_map = {
@@ -254,8 +257,8 @@ def type(file,speed,error_rate,dynamic_spd:bool,dynamic_err:bool):
 
 #below is the execution code
 root.mainloop()
-cursor_initializer()
-with open("doc.docx", "r") as f:
-     type(f,Speed,Error_rate, Dynamic_Speed,Dynamic_err_rate)
+# cursor_initializer()
+# with open("doc.docx", "r") as f:
+#      type(f,Speed,Error_rate, Dynamic_Speed,Dynamic_err_rate)
 
 
