@@ -65,7 +65,7 @@ def get_speed(value):
     speed_slider.configure(progress_color=slider_color(value,max_rate))
     print(Speed)
 
-speed_slider = ctk.CTkSlider(main_frame,from_=0,to=max_rate,command=get_speed)
+speed_slider = ctk.CTkSlider(main_frame,from_=1,to=max_rate,command=get_speed)
 speed_slider.set(Speed)
 speed_slider.configure(progress_color=slider_color(Speed,max_rate))
 speed_slider.pack(fill="x",padx=30,pady=(5, 30))
@@ -213,13 +213,13 @@ def typo_generator(typo_map,total_count,last_chr,rate):
         time.sleep(0.17)
         typo_eraser(total_count,0.17)
 
-def speed_control(pause_time,pause_rate,last_chr): #0-10
+def speed_control(speed,pause_rate,last_chr): #0-10
     if probability(pause_rate):
-        time.sleep(random.uniform(1,3))
+        time.sleep(random.uniform(0.1,1.5))
     if last_chr in [",",".","?"]:
-        time.sleep(random.uniform(pause_time/18,pause_time/2))
+        time.sleep(random.uniform(3/speed,5/speed))
 
-def type(file,pause_time,error_rate,dynamic_spd:bool,dynamic_err:bool):
+def type(file,speed,error_rate,dynamic_spd:bool,dynamic_err:bool):
     original_x, original_y = pyautogui.position()
     count = 0
     for line in file:
@@ -232,11 +232,11 @@ def type(file,pause_time,error_rate,dynamic_spd:bool,dynamic_err:bool):
                 pyautogui.write(j)
                 count += 1
                 if dynamic_spd == True:
-                    pause_time += count/1000000
-                speed_control(pause_time, 2, j)
+                    speed -= count/1000000
+                speed_control(speed, 1.85, j)
 
                 #this section is for debug only, delete before release======
-                print(pause_time,error_rate, sep = " ")
+                print(3/speed,error_rate, sep = " ")
                 #===========================================================
 
                 #exit logic
