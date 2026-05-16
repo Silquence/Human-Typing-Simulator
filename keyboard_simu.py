@@ -5,14 +5,17 @@ import sys
 import customtkinter as ctk
 import threading
 
-Error_rate = 50
-Speed = 50
+Error_rate = 20
+Speed = 10
+Dynamic_err_rate = False
+Dynamic_Speed = False
+
 #below is the GUI code
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
 root = ctk.CTk()
 root.title("Human Typing Simulator")
-root.geometry("500x350")
+root.geometry("800x400")
 root.resizable(False, False)
 main_frame = ctk.CTkFrame(root,corner_radius=20)
 main_frame.pack(padx=20,pady=20,fill="both",expand=True)
@@ -22,11 +25,11 @@ title_label.pack(pady=(20, 25))
 #typing error control pulley
 err_rate_title = ctk.CTkLabel(main_frame,text="Error Rate",font=("Segoe UI", 16))
 err_rate_title.pack(anchor="w", padx=30)
-err_rate = ctk.CTkLabel(main_frame,text="50",font=("Segoe UI", 14))
-err_rate.pack(anchor="e", padx=30)
+# err_rate = ctk.CTkLabel(main_frame,text="50",font=("Segoe UI", 14))
+# err_rate.pack(anchor="e", padx=30)
 
 def get_err_rate(value):
-    err_rate.configure(text=str(int(value)))
+    # err_rate.configure(text=str(int(value)))
     global Error_rate
     Error_rate = value
     print(Error_rate)
@@ -38,11 +41,11 @@ err_rate_slider.pack(fill="x",padx=30,pady=(5, 20))
 #typing speed pulley
 speed_title = ctk.CTkLabel(main_frame,text="Typing Speed",font=("Segoe UI", 16))
 speed_title.pack(anchor="w", padx=30)
-speed = ctk.CTkLabel(main_frame,text="50",font=("Segoe UI", 14))
-speed.pack(anchor="e", padx=30)
+# speed = ctk.CTkLabel(main_frame,text="50",font=("Segoe UI", 14))
+# speed.pack(anchor="e", padx=30)
 
 def get_speed(value):
-    speed.configure(text=str(int(value)))
+    # speed.configure(text=str(int(value)))
     global Speed
     Speed = value
     print(Speed)
@@ -63,7 +66,32 @@ confirm_speed_button = ctk.CTkButton(
     height=40,
     corner_radius=20
 )
-confirm_speed_button.place(x=150, y=260)
+confirm_speed_button.place(x=550, y=285)
+
+#dynamic functions t1:dyna err , t2 dyna spd
+def toggle_t1():
+    global Dynamic_err_rate
+    Dynamic_err_rate = not Dynamic_err_rate
+    print(Dynamic_err_rate)
+
+def toggle_t2():
+    global Dynamic_Speed
+    Dynamic_Speed = not Dynamic_Speed
+    print(Dynamic_Speed)
+
+toggle_t1_button = ctk.CTkSwitch(
+    main_frame,
+    text="dynamic Error Rate",
+    command=toggle_t1,
+)
+toggle_t1_button.place(x=30, y=270)
+
+toggle_t2_button = ctk.CTkSwitch(
+    main_frame,
+    text="Dynamic Speed",
+    command=toggle_t2,
+)
+toggle_t2_button.place(x=30, y=320)
 
 #below is the backend code
 typo_map = {
@@ -209,8 +237,8 @@ def type(file,pause_time,error_rate,dynamic_freq:bool,dynamic_typo:bool):
 
 #below is the execution code
 root.mainloop()
-cursor_initializer()
-with open("doc.docx", "r") as f:
-     type(f,Speed,Error_rate, True,True)
+# cursor_initializer()
+# with open("doc.docx", "r") as f:
+#      type(f,Speed,Error_rate, True,True)
 
 
