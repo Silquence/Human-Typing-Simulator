@@ -5,7 +5,7 @@ import sys
 import customtkinter as ctk
 import threading
 
-Error_rate = 20
+Error_rate = 2
 Speed = 10
 Dynamic_err_rate = False
 Dynamic_Speed = False
@@ -35,7 +35,7 @@ def get_err_rate(value):
     print(Error_rate)
 
 err_rate_slider = ctk.CTkSlider(main_frame,from_=0,to=50,command=get_err_rate)
-err_rate_slider.set(10)
+err_rate_slider.set(Error_rate)
 err_rate_slider.pack(fill="x",padx=30,pady=(5, 20))
 
 #typing speed pulley
@@ -51,7 +51,7 @@ def get_speed(value):
     print(Speed)
 
 speed_slider = ctk.CTkSlider(main_frame,from_=0,to=50,command=get_speed)
-speed_slider.set(10)
+speed_slider.set(Speed)
 speed_slider.pack(fill="x",padx=30,pady=(5, 30))
 
 #confirm configuration
@@ -64,7 +64,8 @@ confirm_speed_button = ctk.CTkButton(
     command=confirm_speed,
     width=100,
     height=40,
-    corner_radius=20
+    corner_radius=20,
+    fg_color="#678DC6",
 )
 confirm_speed_button.place(x=550, y=285)
 
