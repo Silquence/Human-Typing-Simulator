@@ -3,7 +3,6 @@ import time
 import random
 import sys
 import customtkinter as ctk
-import threading
 
 Error_rate = 2
 Speed = 10
@@ -28,8 +27,8 @@ def slider_color(value, max_rate):
         b = 0
     return f"#{r:02x}{g:02x}{b:02x}"
 
-ctk.set_appearance_mode("dark")
-ctk.set_default_color_theme("blue")
+ctk.set_appearance_mode("light")
+ctk.set_default_color_theme("green")
 root = ctk.CTk()
 root.title("Human Typing Simulator")
 root.geometry("800x400")
