@@ -40,6 +40,7 @@ root.title("Human Typing Simulator")
 root.geometry("640x440")
 root.resizable(False, False)
 root.configure(fg_color=TAHOE_BG)
+root.after(100, lambda: root.focus_force())
 
 # 字体设置
 FONT_TITLE = ("SF Pro Display", 20, "bold")
@@ -154,6 +155,7 @@ bottom_frame.pack(fill="x", side="bottom", pady=(5, 5))
 def confirm_speed():
     speed_slider.configure(state="disabled")
     root.destroy()
+    root.update()
 
 confirm_speed_button = ctk.CTkButton(
     bottom_frame,
@@ -312,8 +314,9 @@ def type(file,speed,error_rate,dynamic_spd:bool,dynamic_err:bool):
 
 #below is the execution code
 root.mainloop()
-# cursor_initializer()
-# with open("doc.docx", "r") as f:
-#      type(f,Speed,Error_rate, Dynamic_Speed,Dynamic_err_rate)
+
+cursor_initializer()
+with open("doc.docx", "r") as f:
+     type(f,Speed,Error_rate, Dynamic_Speed,Dynamic_err_rate)
 
 
