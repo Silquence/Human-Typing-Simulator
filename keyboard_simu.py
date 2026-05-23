@@ -3,8 +3,7 @@ import time
 import random
 import customtkinter as ctk
 import threading
-import sys
-import ctypes
+import difflib
 
 # 保持原有的后端全局变量和逻辑不动
 Error_rate = 2
@@ -293,8 +292,7 @@ def confirm_speed():
     with open ("cache.txt","w") as cache:
         content = textbox.get("1.0", "end-1c")
         cache.write(content)
-
-    speed_slider.configure(state="disabled")
+    textbox.configure(state="disabled")
     time.sleep(0.5)
     cursor_initializer()
 
@@ -350,7 +348,41 @@ Exit_button = ctk.CTkButton(
 
 Exit_button.pack(side="right", padx=(0, 10))
 
-# ================= TEXTBOX CODE BELOW ====================
+def Reset():
+    global is_on, cursor_pos, chars, resume, count, text_changed, Speed, Error_rate, Dynamic_Speed, Dynamic_err_rate,max_rate
+    #clr the text box and reset the paras to default
+    textbox.delete("1.0", "end")
+    Error_rate = 2
+    Speed = 10
+    Dynamic_err_rate = False
+    Dynamic_Speed = False
+    is_on = False  # 打字器状态
+    speed_slider.set(Speed)
+    err_rate_slider.set(Error_rate)
+    speed_value_label.configure(text=f"{Speed:.1f}")
+    err_value_label.configure(text=f"{Error_rate:.1f}")
+    speed_slider.configure(progress_color=slider_color(Speed, max_rate))
+    err_rate_slider.configure(progress_color=slider_color(Error_rate, max_rate))
+    toggle_t1_button.deselect()
+    toggle_t2_button.deselect()
+    textbox.configure(state="normal")
+
+
+Reset_button = ctk.CTkButton(
+    bottom_frame,
+    text="Reset",
+    command=Reset,
+    width=80,
+    height=30,
+    corner_radius=8,
+    fg_color="#007AFF",
+    hover_color="#0066CC",
+    font=("SF Pro Text", 13, "bold")
+)
+
+Reset_button.pack(side="right", padx=(0, 10))
+
+# 文本框
 textbox_title = ctk.CTkLabel(
     group_box,
     text="Input Text",
@@ -509,13 +541,13 @@ chars:list[str]
 resume = False
 count = 0
 text_changed = False
-
+original_chars:list[str]
 def type():
     global is_on, cursor_pos,chars,resume,count,text_changed,Speed,Error_rate,Dynamic_Speed,Dynamic_err_rate
 
     #refresh full texts every time
     with open("cache.txt", "r") as f:
-        global chars
+        global chars,original_chars
         chars = list(f.read())
     typo_generator(typo_map, random.randint(1,4),chars[cursor_pos],Error_rate)
     pyautogui.write(chars[cursor_pos])

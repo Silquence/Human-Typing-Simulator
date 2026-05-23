@@ -552,10 +552,10 @@ def typing_thrd():
 typing_thread = threading.Thread(target=typing_thrd)
 
 #below is the execution code
-root.protocol("WM_DELETE_WINDOW", Exit)
-typing_thread.start()
-root.mainloop()
-
+# root.protocol("WM_DELETE_WINDOW", Exit)
+# typing_thread.start()
+# root.mainloop()
+pyautogui.confirm('123')
 
 
 
