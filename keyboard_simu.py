@@ -536,6 +536,112 @@ def speed_control(speed,pause_rate,last_chr): #0-10
     if last_chr in [",",".","?"," "]:
         time.sleep(random.uniform(3/speed,5/speed))
 
+#cycling tips
+tips = [
+    #load
+    "Precision-driven simulation environment initialized.",
+    #commercial
+    "Human Typing Simulator Ultra is powered by NT 2.0 Engine",
+    "Human Typing Simulator is now available on Windows and MacOS",
+    "Purchase Human Typing Simulator Ultra to unlock all features",
+    "The latest model is embedded in the NT 2.0 Engine",
+    #tips
+    "Tip: Place the text box on the right of the screen before pressing go.",
+    "Tip: Press Pause at any time to temporarily stop typing.",
+    "Tip: Lower Error Rate produces cleaner and more consistent output.",
+    "Tip: Dynamic Speed creates more natural typing deceleration.",
+    "Tip: Dynamic Error Rate simulates gradual typing fatigue.",
+    "Tip: Smaller speed values improve realism for long paragraphs.",
+    "Tip: Higher typing speeds may reduce synchronization accuracy.",
+    "Tip: Keep the target window visible during active typing.",
+    "Tip: Avoid switching applications while typing is running.",
+    "Tip: Very high error rates may appear unnatural.",
+    "Tip: Most users achieve realistic results with low typo frequency.",
+    "Tip: Dynamic systems produce less repetitive typing behavior.",
+    "Tip: Input responsiveness may vary between applications.",
+    "Tip: Browser-based editors may process keystrokes differently.",
+    "Tip: Stable system performance improves timing consistency.",
+    "Tip: Background applications may affect typing smoothness.",
+    "Tip: Some applications filter synthetic keyboard events.",
+    "Tip: Typing simulation works best on focused editable fields.",
+    "Tip: Excessive multitasking may interrupt keyboard automation.",
+    "Tip: Consistent cursor focus is required for accurate input.",
+    "Tip: Realistic automation depends heavily on timing variation.",
+    "Tip: Lower speeds generally appear more authentic.",
+    "Tip: The simulator automatically handles punctuation delays.",
+    "Tip: Small timing fluctuations greatly improve realism.",
+    "Tip: Short bursts of speed variation mimic natural typing flow.",
+]
+# 灰色渐变序列（淡入淡出）
+fade_colors = [
+    "#D0D0D0",
+    "#CACACA",
+    "#C4C4C4",
+    "#BEBEBE",
+    "#B8B8B8",
+    "#B2B2B2",
+    "#ACACAC",
+    "#A6A6A6",
+    "#A0A0A0",
+    "#9A9A9A",
+    "#949494",
+    "#8E8E8E",
+    "#888888",
+    "#828285",
+    "#7C7C80",
+    "#76767A",
+    "#707075",
+    "#6E6E73",
+
+    "#707075",
+    "#76767A",
+    "#7C7C80",
+    "#828285",
+    "#888888",
+    "#8E8E8E",
+    "#949494",
+    "#9A9A9A",
+    "#A0A0A0",
+    "#A6A6A6",
+    "#ACACAC",
+    "#B2B2B2",
+    "#B8B8B8",
+    "#BEBEBE",
+    "#C4C4C4",
+    "#CACACA",
+    "#D0D0D0"
+]
+tip_label = ctk.CTkLabel(
+    group_box,
+    text=tips[0],
+    font=("SF Pro Text", 12),
+    text_color="#6E6E73"
+)
+
+tip_label.grid(row=4,
+    column=0,
+    columnspan=3,
+    pady=(0, 15)
+)
+
+fade_index = 0
+tip_index = 0
+
+def tip_animation():
+    global fade_index, tip_index
+    if fade_index < len(fade_colors):
+        tip_label.configure( text_color=fade_colors[fade_index])
+        fade_index += 1
+    else:
+        fade_index = 0
+        if tip_index < len(tips) - 1:
+            tip_index += 1
+        else:
+            tip_index = 1
+        tip_label.configure(text=tips[tip_index])
+    root.after(200, tip_animation)
+tip_animation()
+
 cursor_pos = 0
 chars:list[str]
 resume = False
@@ -582,7 +688,6 @@ def typing_thrd():
 
 
 typing_thread = threading.Thread(target=typing_thrd)
-
 #below is the execution code
 root.protocol("WM_DELETE_WINDOW", Exit)
 typing_thread.start()
