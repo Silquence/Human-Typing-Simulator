@@ -3,7 +3,6 @@ import time
 import random
 import customtkinter as ctk
 import threading
-import difflib
 
 # 保持原有的后端全局变量和逻辑不动
 Error_rate = 2
