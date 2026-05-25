@@ -3,6 +3,7 @@ import time
 import random
 import customtkinter as ctk
 import threading
+import pynput
 
 # 保持原有的后端全局变量和逻辑不动
 Error_rate = 2
@@ -495,7 +496,7 @@ def cursor_initializer():
     screen_width, screen_height = pyautogui.size()
     pyautogui.moveTo(screen_width*3/4,screen_height*0.8)
     pyautogui.click()
-    pyautogui.hotkey("ctrl", "end")
+    pyautogui.hotkey("command", "down")
     time.sleep(0.5)
 
 def probability(probability):
@@ -678,8 +679,9 @@ def typing_thrd():
 
         if is_on == True:
             type()
-            print(Error_rate)
-            print(Speed)
+            # print(Error_rate)
+            # print(Speed)
+            #pynput.keyboard.Listener(on_press=lambda k: print(k)).start(); input()
             if Dynamic_err_rate:
                 Error_rate += random.uniform(0.00001,0.00005)
             if Dynamic_Speed:
@@ -691,7 +693,6 @@ typing_thread = threading.Thread(target=typing_thrd)
 root.protocol("WM_DELETE_WINDOW", Exit)
 typing_thread.start()
 root.mainloop()
-
 
 
 
