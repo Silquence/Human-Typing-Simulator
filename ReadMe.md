@@ -1,1 +1,3 @@
 Human Typing Simulator 是一款基于 Python 的自动化输入工具。它通过智能错误生成、动态速率调整和人性化节奏控制，使自动输入的文本看起来完全由真人敲出，而非机械的复制粘贴。无论是绕过行为检测、录制自然教学演示，还是为测试环境注入真实感，本工具都提供了目前最先进的解决方案。
+
+Human Typing Simulator is a Python-based automated input tool. Through intelligent error generation, dynamic rate adjustment, and human-like rhythm control, it makes automatically typed text appear as if it were typed by a real person, rather than mechanically copied and pasted. Whether it's bypassing behavior detection, recording natural teaching demonstrations, or injecting realism into testing environments, this tool offers state-of-the-art solutions.
