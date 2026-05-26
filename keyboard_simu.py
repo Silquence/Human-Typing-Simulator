@@ -368,6 +368,8 @@ def Reset():
     toggle_t2_button.deselect()
     textbox.configure(state="normal")
     confirm_speed_button.configure(state = "normal")
+    count = 0
+    cursor_pos = 0
 
 
 Reset_button = ctk.CTkButton(
@@ -378,7 +380,7 @@ Reset_button = ctk.CTkButton(
     height=30,
     corner_radius=8,
     fg_color="#FF3B30",
-    hover_color="C92A1F",
+    hover_color="#551606",
     font=("SF Pro Text", 13, "bold")
 )
 
