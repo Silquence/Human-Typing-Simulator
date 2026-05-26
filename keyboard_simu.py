@@ -292,7 +292,6 @@ def confirm_speed():
         content = textbox.get("1.0", "end-1c")
         cache.write(content)
     textbox.configure(state="disabled")
-    time.sleep(0.5)
     cursor_initializer()
 
     global is_on
@@ -333,19 +332,6 @@ def Exit():
     global turn_off
     turn_off = True
     root.destroy()
-Exit_button = ctk.CTkButton(
-    bottom_frame,
-    text="Exit",
-    command=Exit,
-    width=80,
-    height=30,
-    corner_radius=8,
-    fg_color="#007AFF",
-    hover_color="#0066CC",
-    font=("SF Pro Text", 13, "bold")
-)
-
-Exit_button.pack(side="right", padx=(0, 10))
 
 def Reset():
     global is_on, cursor_pos, chars, resume, count, text_changed, Speed, Error_rate, Dynamic_Speed, Dynamic_err_rate,max_rate
