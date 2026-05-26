@@ -3,8 +3,7 @@ import time
 import random
 import customtkinter as ctk
 import threading
-import pynput
-
+import subprocess
 # 保持原有的后端全局变量和逻辑不动
 Error_rate = 2
 Speed = 10
@@ -293,7 +292,7 @@ def confirm_speed():
         content = textbox.get("1.0", "end-1c")
         cache.write(content)
     textbox.configure(state="disabled")
-    time.sleep(0.5)
+    time.sleep(0.05)
     cursor_initializer()
 
     global is_on
@@ -334,29 +333,18 @@ def Exit():
     global turn_off
     turn_off = True
     root.destroy()
-Exit_button = ctk.CTkButton(
-    bottom_frame,
-    text="Exit",
-    command=Exit,
-    width=80,
-    height=30,
-    corner_radius=8,
-    fg_color="#007AFF",
-    hover_color="#0066CC",
-    font=("SF Pro Text", 13, "bold")
-)
-
-Exit_button.pack(side="right", padx=(0, 10))
 
 def Reset():
     global is_on, cursor_pos, chars, resume, count, text_changed, Speed, Error_rate, Dynamic_Speed, Dynamic_err_rate,max_rate
-    #clr the text box and reset the paras to default
-    textbox.delete("1.0", "end")
+    #reset the paras to default
+    is_on = False
+    confirm_speed_button.configure(state = "disabled")
+    time.sleep(0.7)
+
     Error_rate = 2
     Speed = 10
     Dynamic_err_rate = False
     Dynamic_Speed = False
-    is_on = False  # 打字器状态
     speed_slider.set(Speed)
     err_rate_slider.set(Error_rate)
     speed_value_label.configure(text=f"{Speed:.1f}")
@@ -366,6 +354,10 @@ def Reset():
     toggle_t1_button.deselect()
     toggle_t2_button.deselect()
     textbox.configure(state="normal")
+    cursor_pos = 0
+    count = 0
+    confirm_speed_button.configure(state = "normal")
+
 
 
 Reset_button = ctk.CTkButton(
@@ -375,8 +367,8 @@ Reset_button = ctk.CTkButton(
     width=80,
     height=30,
     corner_radius=8,
-    fg_color="#007AFF",
-    hover_color="#0066CC",
+    fg_color="#FF3B30",
+    hover_color="#C92A1F",
     font=("SF Pro Text", 13, "bold")
 )
 
@@ -423,119 +415,6 @@ textbox.insert(
     "1.0",
     "Paste your text here..."
 )
-
-
-#below is the backend code
-typo_map = {
-        # Row 1
-        "q": ["w", "a"],
-        "w": ["q", "e", "s"],
-        "e": ["w", "r", "d"],
-        "r": ["e", "t", "f"],
-        "t": ["r", "y", "g"],
-        "y": ["t", "u", "h"],
-        "u": ["y", "i", "j"],
-        "i": ["u", "o", "k"],
-        "o": ["i", "p", "l"],
-        "p": ["o", "l"],
-        # Row 2
-        "a": ["q", "s", "z"],
-        "s": ["a", "w", "d", "x"],
-        "d": ["s", "e", "f", "c"],
-        "f": ["d", "r", "g", "v"],
-        "g": ["f", "t", "h", "b"],
-        "h": ["g", "y", "j", "n"],
-        "j": ["h", "u", "k", "m"],
-        "k": ["j", "i", "l"],
-        "l": ["k", "o", "p"],
-        # Row 3
-        "z": ["a", "x"],
-        "x": ["z", "s", "c"],
-        "c": ["x", "d", "v"],
-        "v": ["c", "f", "b"],
-        "b": ["v", "g", "n"],
-        "n": ["b", "h", "m"],
-        "m": ["n", "j"],
-        # Uppercase
-        "Q": ["W", "A"],
-        "W": ["Q", "E", "S"],
-        "E": ["W", "R", "D"],
-        "R": ["E", "T", "F"],
-        "T": ["R", "Y", "G"],
-        "Y": ["T", "U", "H"],
-        "U": ["Y", "I", "J"],
-        "I": ["U", "O", "K"],
-        "O": ["I", "P", "L"],
-        "P": ["O", "L"],
-
-        "A": ["Q", "S", "Z"],
-        "S": ["A", "W", "D", "X"],
-        "D": ["S", "E", "F", "C"],
-        "F": ["D", "R", "G", "V"],
-        "G": ["F", "T", "H", "B"],
-        "H": ["G", "Y", "J", "N"],
-        "J": ["H", "U", "K", "M"],
-        "K": ["J", "I", "L"],
-        "L": ["K", "O", "P"],
-
-        "Z": ["A", "X"],
-        "X": ["Z", "S", "C"],
-        "C": ["X", "D", "V"],
-        "V": ["C", "F", "B"],
-        "B": ["V", "G", "N"],
-        "N": ["B", "H", "M"],
-        "M": ["N", "J"],
-        #special characters
-        " ": [" "],
-        ",": ["."],
-        ".": [","],
-        "?": ["/"]
-    }
-
-def cursor_initializer():
-    screen_width, screen_height = pyautogui.size()
-    pyautogui.moveTo(screen_width*3/4,screen_height*0.8)
-    pyautogui.click()
-    pyautogui.hotkey("command", "down")
-    time.sleep(0.5)
-
-def probability(probability):
-    if random.uniform(0,100)<probability:
-        return True
-    else:
-        return False
-
-def typo_writer(typo_map, total_count, current_count, last_chr):
-    if current_count<total_count:
-        possible_typo = typo_map[last_chr]
-        if probability(90):
-            try:
-                typo = random.choice(possible_typo)
-            except KeyError:
-                typo = chr(random.randint(97,122))
-        else:
-            typo = chr(random.randint(97,122))
-        pyautogui.write(typo)
-        current_count += 1
-        typo_writer(typo_map,total_count, current_count, typo)
-
-def typo_eraser(total_count, pause_time):
-    for i in range(0,total_count):
-        pyautogui.press("backspace")
-    time.sleep(pause_time)
-
-def typo_generator(typo_map,total_count,last_chr,rate):
-    if probability(rate):
-        typo_writer(typo_map,total_count,0,last_chr)
-        time.sleep(0.17)
-        typo_eraser(total_count,0.17)
-
-def speed_control(speed,pause_rate,last_chr): #0-10
-    if probability(pause_rate):
-        time.sleep(random.uniform(0.1,1.5))
-    if last_chr in [",",".","?"," "]:
-        time.sleep(random.uniform(3/speed,5/speed))
-
 #cycling tips
 tips = [
     #load
@@ -642,12 +521,137 @@ def tip_animation():
     root.after(200, tip_animation)
 tip_animation()
 
+#below is the backend code
+typo_map = {
+        # Row 1
+        "q": ["w", "a"],
+        "w": ["q", "e", "s"],
+        "e": ["w", "r", "d"],
+        "r": ["e", "t", "f"],
+        "t": ["r", "y", "g"],
+        "y": ["t", "u", "h"],
+        "u": ["y", "i", "j"],
+        "i": ["u", "o", "k"],
+        "o": ["i", "p", "l"],
+        "p": ["o", "l"],
+        # Row 2
+        "a": ["q", "s", "z"],
+        "s": ["a", "w", "d", "x"],
+        "d": ["s", "e", "f", "c"],
+        "f": ["d", "r", "g", "v"],
+        "g": ["f", "t", "h", "b"],
+        "h": ["g", "y", "j", "n"],
+        "j": ["h", "u", "k", "m"],
+        "k": ["j", "i", "l"],
+        "l": ["k", "o", "p"],
+        # Row 3
+        "z": ["a", "x"],
+        "x": ["z", "s", "c"],
+        "c": ["x", "d", "v"],
+        "v": ["c", "f", "b"],
+        "b": ["v", "g", "n"],
+        "n": ["b", "h", "m"],
+        "m": ["n", "j"],
+        # Uppercase
+       "Q": ["W", "A"],
+        "W": ["Q", "E", "S"],
+        "E": ["W", "R", "D"],
+        "R": ["E", "T", "F"],
+        "T": ["R", "Y", "G"],
+        "Y": ["T", "U", "H"],
+        "U": ["Y", "I", "J"],
+        "I": ["U", "O", "K"],
+        "O": ["I", "P", "L"],
+        "P": ["O", "L"],
+
+        "A": ["Q", "S", "Z"],
+        "S": ["A", "W", "D", "X"],
+        "D": ["S", "E", "F", "C"],
+        "F": ["D", "R", "G", "V"],
+        "G": ["F", "T", "H", "B"],
+        "H": ["G", "Y", "J", "N"],
+        "J": ["H", "U", "K", "M"],
+        "K": ["J", "I", "L"],
+        "L": ["K", "O", "P"],
+
+        "Z": ["A", "X"],
+        "X": ["Z", "S", "C"],
+        "C": ["X", "D", "V"],
+        "V": ["C", "F", "B"],
+        "B": ["V", "G", "N"],
+        "N": ["B", "H", "M"],
+        "M": ["N", "J"],
+        #special characters
+        " ": [" "],
+        ",": ["."],
+        ".": [","],
+        "?": ["/"]
+    }
+
+
+def applescript(cmd):
+    subprocess.run(["osascript", "-e", cmd])
+
+def cursor_initializer():
+    screen_width, screen_height = pyautogui.size()
+
+    pyautogui.moveTo(screen_width * 3 / 4,screen_height * 0.8,duration=0.1)
+    pyautogui.click()
+    # 等待窗口获取焦点
+    time.sleep(0.2)
+    applescript(
+        '''
+        tell application "System Events"
+            key code 125 using {command down}
+        end tell
+        '''
+    )
+    time.sleep(0.2)
+
+def probability(probability):
+    if random.uniform(0,100)<probability:
+        return True
+    else:
+        return False
+
+def typo_writer(typo_map, total_count, current_count, last_chr):
+    if current_count<total_count:
+        possible_typo = typo_map[last_chr]
+        if probability(90):
+            try:
+                typo = random.choice(possible_typo)
+            except KeyError:
+                typo = chr(random.randint(97,122))
+        else:
+            typo = chr(random.randint(97,122))
+        pyautogui.write(typo)
+        current_count += 1
+        typo_writer(typo_map,total_count, current_count, typo)
+
+def typo_eraser(total_count, pause_time):
+    for i in range(0,total_count):
+        pyautogui.press("backspace")
+    time.sleep(pause_time)
+
+def typo_generator(typo_map,total_count,last_chr,rate):
+    if probability(rate):
+        typo_writer(typo_map,total_count,0,last_chr)
+        time.sleep(0.17)
+        typo_eraser(total_count,0.17)
+
+def speed_control(speed,pause_rate,last_chr): #0-10
+    if probability(pause_rate):
+        time.sleep(random.uniform(0.1,1.5))
+    if last_chr in [",",".","?"," "]:
+        time.sleep(random.uniform(3/speed,5/speed))
+
 cursor_pos = 0
 chars:list[str]
 resume = False
 count = 0
 text_changed = False
 original_chars:list[str]
+
 def type():
     global is_on, cursor_pos,chars,resume,count,text_changed,Speed,Error_rate,Dynamic_Speed,Dynamic_err_rate
 
@@ -661,11 +665,9 @@ def type():
     count += 1
     cursor_pos += 1
 
-
-
 def typing_thrd():
     global is_on, cursor_pos, chars, resume, count, text_changed, Speed, Error_rate, Dynamic_Speed, Dynamic_err_rate
-    while True and (not turn_off):
+    while not turn_off:
         time.sleep(0.01)
 
         with open ("cache.txt", "r") as f:
@@ -676,23 +678,20 @@ def typing_thrd():
                 Error_rate = 2
                 Speed = 10
 
-
         if is_on == True:
             type()
-            # print(Error_rate)
-            # print(Speed)
-            #pynput.keyboard.Listener(on_press=lambda k: print(k)).start(); input()
             if Dynamic_err_rate:
                 Error_rate += random.uniform(0.00001,0.00005)
             if Dynamic_Speed:
                 Speed += random.uniform(0.00001,0.00005)
 
-
 typing_thread = threading.Thread(target=typing_thrd)
+
 #below is the execution code
 root.protocol("WM_DELETE_WINDOW", Exit)
 typing_thread.start()
 root.mainloop()
+typing_thread.join()
 
 
 
