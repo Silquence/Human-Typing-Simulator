@@ -718,6 +718,8 @@ typing_thread.start()
 root.mainloop()
 typing_thread.join()
 
+#pyinstaller --windowed --name KeyboardSim keyboard_simu.py 打包代码
+
 
 
 
