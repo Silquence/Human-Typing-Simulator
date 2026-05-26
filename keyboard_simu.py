@@ -349,13 +349,15 @@ Exit_button.pack(side="right", padx=(0, 10))
 
 def Reset():
     global is_on, cursor_pos, chars, resume, count, text_changed, Speed, Error_rate, Dynamic_Speed, Dynamic_err_rate,max_rate
-    #clr the text box and reset the paras to default
-    textbox.delete("1.0", "end")
+    #reset the paras to default
+    is_on = False
+    confirm_speed_button.configure(state = "disabled")
+    time.sleep(0.7)
+
     Error_rate = 2
     Speed = 10
     Dynamic_err_rate = False
     Dynamic_Speed = False
-    is_on = False  # 打字器状态
     speed_slider.set(Speed)
     err_rate_slider.set(Error_rate)
     speed_value_label.configure(text=f"{Speed:.1f}")
@@ -365,6 +367,7 @@ def Reset():
     toggle_t1_button.deselect()
     toggle_t2_button.deselect()
     textbox.configure(state="normal")
+    confirm_speed_button.configure(state = "normal")
 
 
 Reset_button = ctk.CTkButton(
@@ -374,8 +377,8 @@ Reset_button = ctk.CTkButton(
     width=80,
     height=30,
     corner_radius=8,
-    fg_color="#007AFF",
-    hover_color="#0066CC",
+    fg_color="#FF3B30",
+    hover_color="C92A1F",
     font=("SF Pro Text", 13, "bold")
 )
 
