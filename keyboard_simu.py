@@ -3,8 +3,23 @@ import time
 import random
 import customtkinter as ctk
 import threading
+import os
 
-# 保持原有的后端全局变量和逻辑不动
+#创建/查找本地缓存  地址：C:\Users\Users_id\.cache
+home_dir = os.path.expanduser("~")
+cache_dir = os.path.join(
+    home_dir,
+    ".cache",
+    "Human Typing Simulator"
+)
+os.makedirs(cache_dir, exist_ok=True)
+cache_file = os.path.join(cache_dir, "cache.txt")
+if not os.path.exists(cache_file):
+    with open(cache_dir, "w", encoding="utf-8") as f:
+        f.write("cache initialized")
+
+
+# 后端全局变量
 Error_rate = 2
 Speed = 10
 Dynamic_err_rate = False
@@ -288,7 +303,7 @@ bottom_frame.pack(
 )
 
 def confirm_speed():
-    with open ("cache.txt","w") as cache:
+    with open (cache_file,"w") as cache:
         content = textbox.get("1.0", "end-1c")
         cache.write(content)
     textbox.configure(state="disabled")
@@ -642,7 +657,7 @@ def type():
     global is_on, cursor_pos,chars,resume,count,text_changed,Speed,Error_rate,Dynamic_Speed,Dynamic_err_rate
 
     #refresh full texts every time
-    with open("cache.txt", "r") as f:
+    with open(cache_file, "r") as f:
         global chars,original_chars
         chars = list(f.read())
     typo_generator(typo_map, random.randint(1,4),chars[cursor_pos],Error_rate)
@@ -658,7 +673,7 @@ def typing_thrd():
     while True and (not turn_off):
         time.sleep(0.01)
 
-        with open ("cache.txt", "r") as f:
+        with open (cache_file, "r") as f:
             if count == len(f.read()):
                 is_on = False
                 count = 0
