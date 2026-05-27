@@ -678,9 +678,6 @@ def typing_thrd():
                 is_on = False
                 count = 0
                 cursor_pos = 0
-                Error_rate = 2
-                Speed = 10
-
 
         if is_on == True:
             type()
