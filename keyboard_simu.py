@@ -678,6 +678,7 @@ def typing_thrd():
                 is_on = False
                 count = 0
                 cursor_pos = 0
+                textbox.configure(state = "normal")
 
         if is_on == True:
             type()
