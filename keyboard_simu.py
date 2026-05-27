@@ -694,14 +694,13 @@ def typing_thrd():
     global is_on, cursor_pos, chars, resume, count, text_changed, Speed, Error_rate, Dynamic_Speed, Dynamic_err_rate
     while not turn_off:
         time.sleep(0.01)
+        print(Error_rate,Speed)
 
         with open (cache_file_dir, "r") as f:
             if count == len(f.read()):
                 is_on = False
                 count = 0
                 cursor_pos = 0
-                Error_rate = 2
-                Speed = 10
 
         if is_on == True:
             type()
