@@ -668,7 +668,7 @@ def speed_control(speed,pause_rate,last_chr): #0-10
     if probability(pause_rate):
         time.sleep(random.uniform(0.1,1.5))
     if last_chr in [",",".","?"," "]:
-        time.sleep(random.uniform(3/speed,5/speed))
+        time.sleep(random.uniform(0.6/speed,0.8/speed))
 
 cursor_pos = 0
 chars:list[str]
@@ -708,7 +708,7 @@ def typing_thrd():
             if Dynamic_err_rate:
                 Error_rate += random.uniform(0.00001,0.00005)
             if Dynamic_Speed:
-                Speed += random.uniform(0.00001,0.00005)
+                Speed -= random.uniform(0.00001,0.00005)
 
 typing_thread = threading.Thread(target=typing_thrd)
 
@@ -718,7 +718,7 @@ typing_thread.start()
 root.mainloop()
 typing_thread.join()
 
-#pyinstaller --clean --noconfirm --windowed --onefile --icon=icon.ico --name "Human Typing Simulator" keyboard_simu.py
+#pyinstaller --clean --noconfirm --windowed --onefile --icon=icon.icns --name "Human Typing Simulator beta" keyboard_simu.py
 
 
 
