@@ -148,7 +148,7 @@ def type(word_to_print):
             )
         count += 1
 
-    for i in range(location[len(location)-1]):
+    for i in range(len(word_to_print)-location[len(location)-1]-1):
         applescript(
             '''
             tell application "System Events"
@@ -160,13 +160,6 @@ def type(word_to_print):
 #below are the execution lines
 cursor_initializer()
 type("abcdefghijk")
-applescript( #move to end
-            '''
-            tell application "System Events"
-                key code 125 using {command down}
-            end tell
-            '''
-        )
 
 
 
