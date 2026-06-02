@@ -671,6 +671,7 @@ key_map = {
     "left":123,
     "right":124,
     "space":49
+    "down":125
 }
 
 def press_letter(char):
@@ -703,13 +704,15 @@ def cursor_initializer():
     pyautogui.click()
     # 等待窗口获取焦点
     time.sleep(0.2)
-    applescript(
+
+    subprocess.run(["osascript","-e",
         '''
         tell application "System Events"
             key code 125 using {command down}
         end tell
         '''
-    )
+    ]) #文末定位
+
     time.sleep(0.2)
 
 cursor_pos = 0
