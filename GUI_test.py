@@ -80,10 +80,51 @@ def cursor_initializer():
     pyautogui.hotkey("ctrl", "end")
     time.sleep(0.5)
 
-word = ["T","h","i","s"," ","is"," ","a"," ","s","a","m","p","l","e"," ","t","e","x","t"]
+cursor_pos = 0
+word:list[str]
+with open ("cache.txt","r") as f:
+    word = f.read().split()
+def type(word_to_print):
+    global typo_map
+    typo_cursor = 0
+    location = list[int]
+    numTypos = random.randint(1,int(len(word_to_print)/2))
+    location = random.sample(range(0,len(word_to_print)),numTypos)
+    location.sort()
+    for i in range(0,len(word_to_print)):
+        if typo_cursor<len(location) and i == location[typo_cursor]:
+            typo_cursor += 1
+            pyautogui.write(random.choice(typo_map[word_to_print[i]]))
 
-def decide_typo(typo_map,char):
-    possible_typo = typo_map[char]
+        else:
+            pyautogui.write(word_to_print[i])
+
+    #percise correction starts here
+    for i in range(0,(len(word_to_print)-location[0])-1):
+        pyautogui.press("left")
+    count = 0
+    while count < len(location):
+        time.sleep(0.5)
+        pyautogui.press("backspace")
+        pyautogui.write(word_to_print[location[count]])
+
+        if count == len(location)-1:
+            count += 1
+            continue
+
+        for i in range(location[count+1]-location[count]):
+            pyautogui.press("right")
+        count += 1
+
+#below are the execution lines
+cursor_initializer()
+type("abcdef")
+
+
+
+
+
+
 
 
 
