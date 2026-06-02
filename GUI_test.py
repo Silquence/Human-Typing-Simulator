@@ -670,7 +670,7 @@ key_map = {
     "backspace":51,
     "left":123,
     "right":124,
-    "space":49
+    "space":49,
     "down":125
 }
 
