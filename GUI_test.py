@@ -100,7 +100,7 @@ with open ("cache.txt","r") as f:
 def type(word_to_print):
     global typo_map
     typo_cursor = 0
-    location = list[int]
+    location:list[int]
     numTypos = random.randint(1,int(len(word_to_print)/2))
     location = random.sample(range(0,len(word_to_print)),numTypos)
     location.sort()
