@@ -1,7 +1,6 @@
 import pyautogui
 import time
 import random
-import subprocess
 import customtkinter as ctk
 import threading
 import subprocess
@@ -38,6 +37,7 @@ max_rate = 20
 is_on = False #打字器状态
 turn_off = False #程序状态
 text = []
+original_mouse_position = (0,0)
 
 
 def slider_color(value, max_rate):
@@ -56,7 +56,7 @@ def slider_color(value, max_rate):
         b = 0
     return f"#{r:02x}{g:02x}{b:02x}"
 
-# --- macOS Tahoe 风格 UI 初始化 ---
+
 ctk.set_appearance_mode("light")
 ctk.set_default_color_theme("blue")
 
@@ -292,7 +292,7 @@ toggle_t1_button.pack(anchor="w", pady=6)
 
 toggle_t2_button = ctk.CTkSwitch(
     switch_frame,
-    text="Enable Dynamic Speed Window",
+    text="Enable Dynamic Speed",
     command=toggle_t2,
     font=FONT_WIDGET,
     text_color="#2C2C2C",
@@ -315,7 +315,7 @@ bottom_frame.pack(
 )
 
 def confirm_speed():
-    global text
+    global text, is_on
     with open (cache_file_dir,"w") as cache:
         content = textbox.get("1.0", "end-1c")
         cache.write(content)
@@ -326,7 +326,6 @@ def confirm_speed():
     time.sleep(0.05)
     cursor_initializer()
 
-    global is_on
     is_on = True
 
 confirm_speed_button = ctk.CTkButton(
@@ -388,8 +387,6 @@ def Reset():
     cursor_pos = 0
     count = 0
     confirm_speed_button.configure(state = "normal")
-
-
 
 Reset_button = ctk.CTkButton(
     bottom_frame,
@@ -698,12 +695,12 @@ def probability(probability):
         return False
 
 def cursor_initializer():
+    global original_mouse_position
     screen_width, screen_height = pyautogui.size()
-
     pyautogui.moveTo(screen_width * 3 / 4,screen_height * 0.8,duration=0.1)
     pyautogui.click()
     # 等待窗口获取焦点
-    time.sleep(0.2)
+    # time.sleep(0.2)
 
     subprocess.run(["osascript","-e",
         '''
@@ -712,20 +709,22 @@ def cursor_initializer():
         end tell
         '''
     ]) #文末定位
-
+    original_mouse_position = pyautogui.position()
     time.sleep(0.2)
 
 cursor_pos = 0
+current_word_complete = False
 
 def type(word_to_print,next_is_char):
 
     if ord(word_to_print[0])<65 or ord(word_to_print[0])>122:#special chars
         for i in range(0,len(word_to_print)):
             press_letter(word_to_print[i])
-            time.sleep(0.1)
+            # time.sleep(0.1)
         return 0
 
-    global typo_map,cursor_pos
+    global typo_map,cursor_pos,current_word_complete
+    current_word_complete = False
     typo_cursor = 0
     location:list[int]
     numTypos = random.randint(1,int(len(word_to_print)/2))
@@ -738,7 +737,6 @@ def type(word_to_print,next_is_char):
 
         else:
             press_letter(word_to_print[i])
-
 
     #percise correction starts here
     for i in range(0,(len(word_to_print)-location[0])-1):
@@ -767,10 +765,16 @@ def type(word_to_print,next_is_char):
     else:
         return 0
 
+
 def typing_thrd():
-    global is_on, cursor_pos, chars, resume, count, text_changed, Speed, Error_rate, Dynamic_Speed, Dynamic_err_rate,text
+    global is_on, cursor_pos, chars,\
+        resume, count, text_changed, \
+        Speed, Error_rate, Dynamic_Speed, \
+        Dynamic_err_rate,text,original_mouse_position
+
     while not turn_off:
-        if cursor_pos == len(text):
+
+        if cursor_pos == len(text): #end when complete
             is_on = False
             cursor_pos = 0
             textbox.configure(state = "normal")
@@ -783,11 +787,21 @@ def typing_thrd():
         else:
             next_is_char = True
 
-
         if is_on == True:
+
             type(text[cursor_pos],next_is_char)
             cursor_pos += 1
 
+            position = pyautogui.position()
+            choice = subprocess.run(
+                ["osascript","-e",
+                    'button returned of (display dialog "Pause?" buttons {"No", "OK"} default button "OK")'
+                ],capture_output=True,text=True).stdout.strip()
+
+            if choice == "OK":
+                is_on = False
+            else:
+                cursor_initializer()
 
 #below are the execution lines
 typing_thread = threading.Thread(target = typing_thrd)
