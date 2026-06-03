@@ -369,7 +369,6 @@ def Reset():
     #reset the paras to default
     is_on = False
     confirm_speed_button.configure(state = "disabled")
-    time.sleep(0.7)
 
     Error_rate = 2
     Speed = 10
@@ -710,7 +709,6 @@ def cursor_initializer():
         '''
     ]) #文末定位
     original_mouse_position = pyautogui.position()
-    time.sleep(0.2)
 
 cursor_pos = 0
 current_word_complete = False
@@ -743,9 +741,7 @@ def type(word_to_print,next_is_char):
         press_letter("left")
     count = 0
     while count < len(location):
-        time.sleep(0.5)
         press_letter("backspace")
-        time.sleep(0.1)
         press_letter(word_to_print[location[count]])
 
         if count == len(location)-1:
@@ -758,7 +754,6 @@ def type(word_to_print,next_is_char):
 
     for i in range(len(word_to_print)-location[len(location)-1]-1):
         press_letter("right")
-        time.sleep(0.1)
 
     if next_is_char:
         press_letter("space")
@@ -793,15 +788,19 @@ def typing_thrd():
             cursor_pos += 1
 
             position = pyautogui.position()
-            choice = subprocess.run(
-                ["osascript","-e",
-                    'button returned of (display dialog "Pause?" buttons {"No", "OK"} default button "OK")'
-                ],capture_output=True,text=True).stdout.strip()
+            if (position[0] > original_mouse_position[0] + 10
+                or position[1] > original_mouse_position[1] + 10
+                or position[0] < original_mouse_position[0] - 10
+                or position[1] < original_mouse_position[1] - 10):
 
-            if choice == "OK":
-                is_on = False
-            else:
-                cursor_initializer()
+                choice = subprocess.run(
+                    ["osascript","-e",
+                        'button returned of (display dialog "Pause?" buttons {"No", "OK"} default button "OK")'
+                    ],capture_output=True,text=True).stdout.strip()
+                if choice == "OK":
+                    is_on = False
+                else:
+                    cursor_initializer()
 
 #below are the execution lines
 typing_thread = threading.Thread(target = typing_thrd)
