@@ -698,8 +698,6 @@ def cursor_initializer():
     screen_width, screen_height = pyautogui.size()
     pyautogui.moveTo(screen_width * 3 / 4,screen_height * 0.8,duration=0.1)
     pyautogui.click()
-    # 等待窗口获取焦点
-    # time.sleep(0.2)
 
     subprocess.run(["osascript","-e",
         '''
@@ -713,11 +711,30 @@ def cursor_initializer():
 cursor_pos = 0
 current_word_complete = False
 
+def speed_control(stage,cursor_data_pkg = (0,0),sleep_time = 0):#time elapsed between every letter
+    global Speed, Dynamic_Speed, cursor_pos, typo_cursor
+    wait_time = 0.5 / Speed
+    if stage == "typing":
+        if Dynamic_Speed == True:
+            wait_time += cursor_pos/100
+        time.sleep(random.uniform(wait_time,wait_time+0.05))
+        print(wait_time)
+    elif stage == "cursor_move":
+        if Dynamic_Speed == True:
+            wait_time += cursor_pos/100
+        if cursor_data_pkg[1] - cursor_data_pkg[0] <3:
+            wait_time += random.uniform(0.1,0.3)
+
+    elif stage == "debug":
+        time.sleep(sleep_time)
+
+
 def type(word_to_print,next_is_char):
 
     if ord(word_to_print[0])<65 or ord(word_to_print[0])>122:#special chars
         for i in range(0,len(word_to_print)):
             press_letter(word_to_print[i])
+            speed_control("typing")
             # time.sleep(0.1)
         return 0
 
@@ -735,6 +752,7 @@ def type(word_to_print,next_is_char):
 
         else:
             press_letter(word_to_print[i])
+        speed_control("typing")
 
     #percise correction starts here
     for i in range(0,(len(word_to_print)-location[0])-1):
@@ -750,16 +768,17 @@ def type(word_to_print,next_is_char):
 
         for i in range(location[count+1]-location[count]):
             press_letter("right")
+            speed_control("cursor_move",(i,location[count+1]-location[count]))
         count += 1
 
     for i in range(len(word_to_print)-location[len(location)-1]-1):
         press_letter("right")
+        speed_control("cursor_move", (i, len(word_to_print)-location[len(location)-1]-1))
 
     if next_is_char:
         press_letter("space")
     else:
         return 0
-
 
 def typing_thrd():
     global is_on, cursor_pos, chars,\
@@ -804,7 +823,6 @@ def typing_thrd():
 
 #below are the execution lines
 typing_thread = threading.Thread(target = typing_thrd)
-
 root.protocol("WM_DELETE_WINDOW", Exit)
 typing_thread.start()
 root.mainloop()
