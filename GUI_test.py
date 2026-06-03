@@ -713,7 +713,7 @@ current_word_complete = False
 
 def speed_control(stage,cursor_data_pkg = (0,0),sleep_time = 0):#time elapsed between every letter
     global Speed, Dynamic_Speed, cursor_pos, typo_cursor
-    wait_time = 0.5 / Speed
+    wait_time = 0.2 / Speed
     if stage == "typing":
         if Dynamic_Speed == True:
             wait_time += cursor_pos/100
@@ -738,45 +738,53 @@ def type(word_to_print,next_is_char):
             # time.sleep(0.1)
         return 0
 
-    global typo_map,cursor_pos,current_word_complete
+    global typo_map,cursor_pos,current_word_complete,Error_rate,Dynamic_err_rate
     current_word_complete = False
     typo_cursor = 0
     location:list[int]
-    numTypos = random.randint(1,int(len(word_to_print)/2))
-    location = random.sample(range(0,len(word_to_print)),numTypos)
-    location.sort()
-    for i in range(0,len(word_to_print)):
-        if typo_cursor<len(location) and i == location[typo_cursor]:
-            typo_cursor += 1
-            press_letter(random.choice(typo_map[word_to_print[i]]))
+    if Dynamic_err_rate == True:
+        Error_rate += cursor_pos/100
 
-        else:
-            press_letter(word_to_print[i])
-        speed_control("typing")
+    if probability(Error_rate):
+        numTypos = random.randint(1,int(len(word_to_print)/2))
+        location = random.sample(range(0,len(word_to_print)),numTypos)
+        location.sort()
+        for i in range(0,len(word_to_print)):
+            if typo_cursor<len(location) and i == location[typo_cursor]:
+                typo_cursor += 1
+                press_letter(random.choice(typo_map[word_to_print[i]]))
 
-    #percise correction starts here
-    for i in range(0,(len(word_to_print)-location[0])-1):
-        press_letter("left")
-    count = 0
-    while count < len(location):
-        press_letter("backspace")
-        press_letter(word_to_print[location[count]])
+            else:
+                press_letter(word_to_print[i])
+            speed_control("typing")
 
-        if count == len(location)-1:
+        #percise correction starts here
+        for i in range(0,(len(word_to_print)-location[0])-1):
+            press_letter("left")
+        count = 0
+        while count < len(location):
+            press_letter("backspace")
+            press_letter(word_to_print[location[count]])
+
+            if count == len(location)-1:
+                count += 1
+                continue
+
+            for i in range(location[count+1]-location[count]):
+                press_letter("right")
+                speed_control("cursor_move",(i,location[count+1]-location[count]))
             count += 1
-            continue
 
-        for i in range(location[count+1]-location[count]):
+        for i in range(len(word_to_print)-location[len(location)-1]-1):
             press_letter("right")
-            speed_control("cursor_move",(i,location[count+1]-location[count]))
-        count += 1
-
-    for i in range(len(word_to_print)-location[len(location)-1]-1):
-        press_letter("right")
-        speed_control("cursor_move", (i, len(word_to_print)-location[len(location)-1]-1))
-
+            speed_control("cursor_move", (i, len(word_to_print)-location[len(location)-1]-1))
+    else:
+        for i in range(0,len(word_to_print)):
+            press_letter(word_to_print[i])
+            speed_control("typing")
     if next_is_char:
         press_letter("space")
+        speed_control("typing")
     else:
         return 0
 
