@@ -759,29 +759,38 @@ def type(word_to_print,next_is_char):
             speed_control("typing")
 
         #percise correction starts here
+
         for i in range(0,(len(word_to_print)-location[0])-1):
             press_letter("left")
+            speed_control("cursor_move", (i, (len(word_to_print)-location[0])-1))
         count = 0
         while count < len(location):
+            #erase and write
             press_letter("backspace")
+            time.sleep(random.uniform(0.1, 0.3))
             press_letter(word_to_print[location[count]])
 
+            #skip cursor move for the last correction
             if count == len(location)-1:
                 count += 1
                 continue
 
+            #move to next error loc
             for i in range(location[count+1]-location[count]):
                 press_letter("right")
                 speed_control("cursor_move",(i,location[count+1]-location[count]))
             count += 1
 
+        #move to the end of the current word
         for i in range(len(word_to_print)-location[len(location)-1]-1):
             press_letter("right")
             speed_control("cursor_move", (i, len(word_to_print)-location[len(location)-1]-1))
+
     else:
         for i in range(0,len(word_to_print)):
             press_letter(word_to_print[i])
             speed_control("typing")
+            
     if next_is_char:
         press_letter("space")
         speed_control("typing")
