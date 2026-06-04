@@ -829,7 +829,7 @@ def speed_control(stage,cursor_data_pkg = (0,0),sleep_time = 0):#time elapsed be
             wait_time += cursor_pos/100
         time.sleep(random.uniform(wait_time,wait_time+0.05))
         print(wait_time)
-        
+
     elif stage == "cursor_move":
         if Dynamic_Speed == True:
             wait_time += cursor_pos/100
@@ -839,6 +839,9 @@ def speed_control(stage,cursor_data_pkg = (0,0),sleep_time = 0):#time elapsed be
     elif stage == "debug":
         time.sleep(sleep_time)
 
+    #random pause
+    if probability(5):
+        time.sleep(random.uniform(1,3))
 
 def type(word_to_print,next_is_char):
 
