@@ -38,6 +38,7 @@ is_on = False #打字器状态
 turn_off = False #程序状态
 text = []
 original_mouse_position = (0,0)
+pause_triggered = False
 
 
 def slider_color(value, max_rate):
@@ -81,13 +82,97 @@ main_frame = ctk.CTkFrame(root, corner_radius=0, fg_color=TAHOE_BG)
 main_frame.pack(padx=30, pady=25, fill="both", expand=True)
 
 # 顶部标题
-title_label = ctk.CTkLabel(
+title_frame = ctk.CTkFrame(
     main_frame,
+    fg_color="transparent"
+)
+title_frame.pack(fill="x", pady=(5, 20))
+title_label = ctk.CTkLabel(
+    title_frame,
     text="Typing Configuration",
     font=FONT_TITLE,
     text_color="#1E1E1E"
 )
-title_label.pack(pady=(5, 20), anchor="w")
+title_label.pack(side="left")
+
+#暂停指示灯
+pause_status_label = ctk.CTkLabel(
+    title_frame,
+    text="● Pause Triggered",
+    font=("SF Pro Text", 12, "bold"),
+    text_color="#FF3B30"
+)
+
+def update_pause_indicator():
+    if pause_triggered:
+        if not pause_status_label.winfo_ismapped():
+            pause_status_label.pack(
+                side="right",
+                padx=(0, 5)
+            )
+        pause_status_label.configure(
+            text_color="#FF3B30"
+        )
+    else:
+        if pause_status_label.winfo_ismapped():
+            pause_status_label.pack_forget()
+    root.after(100, update_pause_indicator)
+update_pause_indicator()
+
+pause_status_label = ctk.CTkLabel(
+    title_frame,
+    text="● Pause Triggered",
+    font=("SF Pro Text", 12, "bold"),
+    text_color="#FF3B30"
+)
+
+#ready_label 指示灯
+ready_label = ctk.CTkLabel(
+    title_frame,
+    text="● Ready",
+    font=("SF Pro Text", 12, "bold"),
+    text_color="#228B22"
+)
+
+def update_ready_indicator():
+    if is_on == False and pause_triggered == False:
+        if not ready_label.winfo_ismapped():
+            ready_label.pack(
+                side="right",
+                padx=(0, 5)
+            )
+        ready_label.configure(
+            text_color="#228B22"
+        )
+    else:
+        if ready_label.winfo_ismapped():
+            ready_label.pack_forget()
+    root.after(100, update_ready_indicator)
+update_ready_indicator()
+
+#typing 指示灯
+typing_label = ctk.CTkLabel(
+    title_frame,
+    text="● Typing",
+    font=("SF Pro Text", 12, "bold"),
+    text_color="#007AFF"
+)
+
+def update_typing_indicator():
+    if is_on and pause_triggered == False:
+        if not typing_label.winfo_ismapped():
+            typing_label.pack(
+                side="right",
+                padx=(0, 5)
+            )
+        typing_label.configure(
+            text_color="#007AFF"
+        )
+    else:
+        if typing_label.winfo_ismapped():
+            typing_label.pack_forget()
+    root.after(100, update_typing_indicator)
+update_typing_indicator()
 
 # 卡片式分组框
 group_box = ctk.CTkFrame(
@@ -524,7 +609,7 @@ tip_label = ctk.CTkLabel(
     text_color="#6E6E73"
 )
 
-tip_label.grid(row=4,
+tip_label.grid(row=5,
     column=0,
     columnspan=3,
     pady=(0, 15)
@@ -547,6 +632,8 @@ def tip_animation():
         tip_label.configure(text=tips[tip_index])
     root.after(200, tip_animation)
 tip_animation()
+
+
 
 #below is the backend code
 typo_map = {
@@ -667,12 +754,35 @@ key_map = {
     "left":123,
     "right":124,
     "space":49,
-    "down":125
+    "down":125,
+
+    #special character
+    "?": 44,
+    "<": 43,
+    ">": 47,
+    "+": 24,
+    "_": 27,
+    ":": 41,
+    "\"": 39,
+    "{": 33,
+    "}": 30,
+    "|": 42,
+    "~": 50,
+    "!": 18,
+    "@": 19,
+    "#": 20,
+    "$": 21,
+    "%": 23,
+    "^": 22,
+    "&": 26,
+    "*": 28,
+    "(": 25,
+    ")": 29,
 }
 
 def press_letter(char):
     code = key_map[char.lower()]
-    if char.isupper():
+    if char.isupper() or (char in "!@#$%^&*()_+{}|\\:;\"'<>?/~`"):
         subprocess.run(["osascript","-e",
         f'''
         tell application "System Events"
@@ -738,7 +848,7 @@ def type(word_to_print,next_is_char):
             # time.sleep(0.1)
         return 0
 
-    global typo_map,cursor_pos,current_word_complete,Error_rate,Dynamic_err_rate
+    global typo_map,cursor_pos,current_word_complete,Error_rate,Dynamic_err_rate,pause_triggered
     current_word_complete = False
     typo_cursor = 0
     location:list[int]
@@ -790,18 +900,21 @@ def type(word_to_print,next_is_char):
         for i in range(0,len(word_to_print)):
             press_letter(word_to_print[i])
             speed_control("typing")
-            
+
     if next_is_char:
         press_letter("space")
         speed_control("typing")
     else:
         return 0
+    if pause_triggered == True:
+        pause_triggered = False
 
 def typing_thrd():
     global is_on, cursor_pos, chars,\
         resume, count, text_changed, \
         Speed, Error_rate, Dynamic_Speed, \
-        Dynamic_err_rate,text,original_mouse_position
+        Dynamic_err_rate,text,original_mouse_position, \
+        pause_triggered
 
     while not turn_off:
 
@@ -828,13 +941,14 @@ def typing_thrd():
                 or position[1] > original_mouse_position[1] + 10
                 or position[0] < original_mouse_position[0] - 10
                 or position[1] < original_mouse_position[1] - 10):
-
+                pause_triggered = True
                 choice = subprocess.run(
                     ["osascript","-e",
                         'button returned of (display dialog "Pause?" buttons {"No", "OK"} default button "OK")'
                     ],capture_output=True,text=True).stdout.strip()
                 if choice == "OK":
                     is_on = False
+                    pause_triggered = False
                 else:
                     cursor_initializer()
 
