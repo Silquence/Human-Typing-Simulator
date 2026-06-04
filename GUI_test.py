@@ -33,7 +33,7 @@ Error_rate = 2
 Speed = 10
 Dynamic_err_rate = False
 Dynamic_Speed = False
-max_rate = 20
+max_rate = 100
 is_on = False #打字器状态
 turn_off = False #程序状态
 text = []
@@ -829,6 +829,7 @@ def speed_control(stage,cursor_data_pkg = (0,0),sleep_time = 0):#time elapsed be
             wait_time += cursor_pos/100
         time.sleep(random.uniform(wait_time,wait_time+0.05))
         print(wait_time)
+        
     elif stage == "cursor_move":
         if Dynamic_Speed == True:
             wait_time += cursor_pos/100
