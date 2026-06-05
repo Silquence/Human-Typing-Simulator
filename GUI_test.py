@@ -430,22 +430,22 @@ confirm_speed_button = ctk.CTkButton(
 )
 confirm_speed_button.pack(side="right")
 
-def pause():
-    global is_on
-    is_on = False
-pause_button = ctk.CTkButton(
-    bottom_frame,
-    text="Pause",
-    command=pause,
-    width=80,
-    height=30,
-    corner_radius=8,
-    fg_color="#007AFF",
-    hover_color="#0066CC",
-    font=("SF Pro Text", 13, "bold")
-)
-
-pause_button.pack(side="right", padx=(0, 10))
+# def pause():
+#     global is_on
+#     is_on = False
+# pause_button = ctk.CTkButton(
+#     bottom_frame,
+#     text="Pause",
+#     command=pause,
+#     width=80,
+#     height=30,
+#     corner_radius=8,
+#     fg_color="#007AFF",
+#     hover_color="#0066CC",
+#     font=("SF Pro Text", 13, "bold")
+# )
+#
+# pause_button.pack(side="right", padx=(0, 10))
 
 
 def Exit():
@@ -863,13 +863,13 @@ def detect_break():
             pause_triggered = True
             choice = subprocess.run(
                 ["osascript","-e",
-                    'button returned of (display dialog "Pause?" buttons {"No", "OK"} default button "OK")'
+                    'button returned of (display dialog "Pause?" buttons {"No", "Yes"} default button "OK")'
                 ],capture_output=True,text=True).stdout.strip()
             if choice == "OK":
 
                 choice = subprocess.run(
                     ["osascript", "-e",
-                     'button returned of (display dialog "Ready to continue" buttons {"Exit", "Continue"} default button "Continue")'
+                     'button returned of (display dialog "Continue?" buttons {"Exit", "Continue"} default button "Continue")'
                      ], capture_output=True, text=True).stdout.strip()
                 if choice == "Continue":
                     pause_triggered = False
