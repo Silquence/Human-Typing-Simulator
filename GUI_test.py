@@ -863,9 +863,9 @@ def detect_break():
             pause_triggered = True
             choice = subprocess.run(
                 ["osascript","-e",
-                    'button returned of (display dialog "Pause?" buttons {"No", "Yes"} default button "OK")'
+                    'button returned of (display dialog "Pause?" buttons {"No", "Yes"} default button "Yes")'
                 ],capture_output=True,text=True).stdout.strip()
-            if choice == "OK":
+            if choice == "Yes":
 
                 choice = subprocess.run(
                     ["osascript", "-e",
@@ -1008,14 +1008,4 @@ root.protocol("WM_DELETE_WINDOW", Exit)
 typing_thread.start()
 root.mainloop()
 typing_thread.join()
-
-
-
-
-
-
-
-
-
-
 
