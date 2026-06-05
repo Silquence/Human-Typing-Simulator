@@ -540,6 +540,7 @@ textbox.insert(
 tips = [
     #load
     "Precision-driven simulation environment initialized.",
+    "Swing the cursor to pause typing.",
     #commercial
     "Human Typing Simulator Ultra is powered by NT 2.0 Engine",
     "Human Typing Simulator is now available on Windows and MacOS",
