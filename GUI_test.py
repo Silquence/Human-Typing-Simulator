@@ -845,7 +845,9 @@ def speed_control(stage,cursor_data_pkg = (0,0),sleep_time = 0):#time elapsed be
             wait_time += cursor_pos/100
         if cursor_data_pkg[1] - cursor_data_pkg[0] <3:
             wait_time += random.uniform(0.1,0.3)
+        time.sleep(wait_time)
 
+    #debug option
     elif stage == "debug":
         time.sleep(sleep_time)
 
