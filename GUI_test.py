@@ -121,7 +121,7 @@ update_pause_indicator()
 
 pause_status_label = ctk.CTkLabel(
     title_frame,
-    text="● Pause Triggered",
+    text="● Paused",
     font=("SF Pro Text", 12, "bold"),
     text_color="#FF3B30"
 )
@@ -792,7 +792,7 @@ key_map = {
 
 def press_letter(char):
     code = key_map[char.lower()]
-    if char.isupper() or (char in "!@#$%^&*()_+{}|\\:;\"'<>?/~`"):
+    if char.isupper() or (char in "!@#$%^&*()_+{}|\\:\"'<>?~`"):
         subprocess.run(["osascript","-e",
         f'''
         tell application "System Events"
@@ -839,7 +839,6 @@ def speed_control(stage,cursor_data_pkg = (0,0),sleep_time = 0):#time elapsed be
             wait_time += cursor_pos/100
         time.sleep(random.uniform(wait_time,wait_time+0.05))
 
-
     elif stage == "cursor_move":
         if Dynamic_Speed == True:
             wait_time += cursor_pos/100
@@ -852,7 +851,7 @@ def speed_control(stage,cursor_data_pkg = (0,0),sleep_time = 0):#time elapsed be
         time.sleep(sleep_time)
 
     #random pause
-    if probability(1):
+    if probability(random.uniform(1,1.5)):
         time.sleep(random.uniform(0.3,2))
 
 def detect_break():
