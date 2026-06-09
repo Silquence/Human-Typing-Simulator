@@ -872,7 +872,7 @@ def detect_break():
                 choice = subprocess.run(
                     ["osascript", "-e",
                      'button returned of (display dialog "Continue?" buttons {"Exit", "Continue"} default button "Continue")'
-                     ], capture_output=True, text=True).stdout.strip()
+                ], capture_output=True, text=True).stdout.strip()
                 if choice == "Continue":
                     pause_triggered = False
                     cursor_initializer()
