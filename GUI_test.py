@@ -39,6 +39,7 @@ turn_off = False #程序状态
 text = []
 original_mouse_position = (0,0)
 pause_triggered = False
+hybrid = False
 
 
 def slider_color(value, max_rate):
@@ -67,7 +68,7 @@ TAHOE_CARD_BG = "#FAFAFA"
 
 root = ctk.CTk()
 root.title("Human Typing Simulator")
-root.geometry("640x620")
+root.geometry("640x640")
 root.resizable(False, False)
 root.configure(fg_color=TAHOE_BG)
 
@@ -349,6 +350,10 @@ def toggle_t2():
     Dynamic_Speed = not Dynamic_Speed
     print(Dynamic_Speed)
 
+def toggle_t3():
+    global hybrid
+    hybrid = not hybrid
+
 switch_frame = ctk.CTkFrame(
     group_box,
     fg_color="transparent"
@@ -372,7 +377,6 @@ toggle_t1_button = ctk.CTkSwitch(
     progress_color="#34C759",
     fg_color="#E2E2E7"
 )
-
 toggle_t1_button.pack(anchor="w", pady=6)
 
 toggle_t2_button = ctk.CTkSwitch(
@@ -384,8 +388,18 @@ toggle_t2_button = ctk.CTkSwitch(
     progress_color="#34C759",
     fg_color="#E2E2E7"
 )
-
 toggle_t2_button.pack(anchor="w", pady=6)
+
+toggle_t3_button = ctk.CTkSwitch(
+    switch_frame,
+    text="Hybrid Mode",
+    command=toggle_t3,
+    font=FONT_WIDGET,
+    text_color="#2C2C2C",
+    progress_color="#34C759",
+    fg_color="#E2E2E7"
+)
+toggle_t3_button.pack(anchor="w", pady=6)
 
 # --- 底部动作栏 ---
 bottom_frame = ctk.CTkFrame(
@@ -430,24 +444,6 @@ confirm_speed_button = ctk.CTkButton(
 )
 confirm_speed_button.pack(side="right")
 
-# def pause():
-#     global is_on
-#     is_on = False
-# pause_button = ctk.CTkButton(
-#     bottom_frame,
-#     text="Pause",
-#     command=pause,
-#     width=80,
-#     height=30,
-#     corner_radius=8,
-#     fg_color="#007AFF",
-#     hover_color="#0066CC",
-#     font=("SF Pro Text", 13, "bold")
-# )
-#
-# pause_button.pack(side="right", padx=(0, 10))
-
-
 def Exit():
     global turn_off
     turn_off = True
@@ -457,7 +453,7 @@ def Reset():
     global is_on, cursor_pos, chars, \
         resume, count, text_changed, \
         Speed, Error_rate, Dynamic_Speed, \
-        Dynamic_err_rate,max_rate,pause_triggered
+        Dynamic_err_rate,max_rate,pause_triggered, hybrid
 
     #reset the paras to default
     is_on = False
@@ -480,6 +476,7 @@ def Reset():
     count = 0
     confirm_speed_button.configure(state = "normal")
     pause_triggered = False
+    hybrid  = False
 
 Reset_button = ctk.CTkButton(
     bottom_frame,
@@ -905,61 +902,100 @@ def type(word_to_print,next_is_char):
         Error_rate += cursor_pos/100
 
     if probability(Error_rate):
-        numTypos = random.randint(1,int(len(word_to_print)/2))
-        location = random.sample(range(0,len(word_to_print)),numTypos)
-        location.sort()
-        for i in range(0,len(word_to_print)):
-            if typo_cursor<len(location) and i == location[typo_cursor]:
-                typo_cursor += 1
-                press_letter(random.choice(typo_map[word_to_print[i]]))
+        if hybrid == True:
+            numTypos = random.randint(1,int(len(word_to_print)/2))
+            location = random.sample(range(0,len(word_to_print)),numTypos)
+            location.sort()
+            for i in range(0,len(word_to_print)):
+                if typo_cursor<len(location) and i == location[typo_cursor]:
+                    typo_cursor += 1
+                    press_letter(random.choice(typo_map[word_to_print[i]]))
+                    signal = detect_break()
+                    if signal == 0:
+                        return 0
+                else:
+                    press_letter(word_to_print[i])
+                    signal = detect_break()
+                    if signal == 0:
+                        return 0
+                speed_control("typing")
+
+            #percise correction starts here
+
+            for i in range(0,(len(word_to_print)-location[0])-1):
+                press_letter("left")
                 signal = detect_break()
                 if signal == 0:
                     return 0
-            else:
-                press_letter(word_to_print[i])
+                speed_control("cursor_move", (i, (len(word_to_print)-location[0])-1))
+            count = 0
+            while count < len(location):
+                #erase and write
+                press_letter("backspace")
+                time.sleep(random.uniform(0.1, 0.3))
                 signal = detect_break()
                 if signal == 0:
                     return 0
-            speed_control("typing")
+                press_letter(word_to_print[location[count]])
 
-        #percise correction starts here
-        for i in range(0,(len(word_to_print)-location[0])-1):
-            press_letter("left")
-            signal = detect_break()
-            if signal == 0:
-                return 0
-            speed_control("cursor_move", (i, (len(word_to_print)-location[0])-1))
-        count = 0
-        while count < len(location):
-            #erase and write
-            press_letter("backspace")
-            time.sleep(random.uniform(0.1, 0.3))
-            signal = detect_break()
-            if signal == 0:
-                return 0
-            press_letter(word_to_print[location[count]])
+                #skip cursor move for the last correction
+                if count == len(location)-1:
+                    count += 1
+                    continue
 
-            #skip cursor move for the last correction
-            if count == len(location)-1:
+                #move to next error loc
+                for i in range(location[count+1]-location[count]):
+                    press_letter("right")
+                    signal = detect_break()
+                    if signal == 0:
+                        return 0
+                    speed_control("cursor_move",(i,location[count+1]-location[count]))
                 count += 1
-                continue
 
-            #move to next error loc
-            for i in range(location[count+1]-location[count]):
+            #move to the end of the current word
+            for i in range(len(word_to_print)-location[len(location)-1]-1):
                 press_letter("right")
                 signal = detect_break()
                 if signal == 0:
                     return 0
-                speed_control("cursor_move",(i,location[count+1]-location[count]))
-            count += 1
+                speed_control("cursor_move", (i, len(word_to_print)-location[len(location)-1]-1))
 
-        #move to the end of the current word
-        for i in range(len(word_to_print)-location[len(location)-1]-1):
-            press_letter("right")
-            signal = detect_break()
-            if signal == 0:
-                return 0
-            speed_control("cursor_move", (i, len(word_to_print)-location[len(location)-1]-1))
+        else:
+            #NT2.0
+            def typo_writer(typo_map, total_count, current_count, last_chr):
+                if current_count < total_count:
+                    possible_typo = typo_map[last_chr]
+                    if probability(90):
+                        try:
+                            typo = random.choice(possible_typo)
+                        except KeyError:
+                            typo = chr(random.randint(97, 122))
+                    else:
+                        typo = chr(random.randint(97, 122))
+                    pyautogui.write(typo)
+                    current_count += 1
+
+                    typo_writer(typo_map, total_count, current_count, typo)
+
+            def typo_eraser(total_count):
+                for i in range(0, total_count):
+                    pyautogui.press("backspace")
+                speed_control("type")
+
+            def typo_generator(typo_map, total_count, last_chr, rate):
+                if probability(rate):
+                    typo_writer(typo_map, total_count, 0, last_chr)
+                    speed_control("type")
+                    typo_eraser(total_count)
+
+            NT20cursor_pos = 0
+            while NT20cursor_pos<len(word_to_print):
+                count = 0
+                chars = word_to_print
+                typo_generator(typo_map, random.randint(1, 4), chars[NT20cursor_pos], Error_rate)
+                press_letter(chars[NT20cursor_pos])
+                count += 1
+                NT20cursor_pos += 1
 
     else:
         for i in range(0,len(word_to_print)):
