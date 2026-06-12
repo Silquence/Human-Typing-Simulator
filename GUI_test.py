@@ -40,6 +40,7 @@ text = []
 original_mouse_position = (0,0)
 pause_triggered = False
 hybrid = False
+err_generator_model:str
 
 
 def slider_color(value, max_rate):
@@ -963,7 +964,7 @@ def type(word_to_print,next_is_char):
         else:
             #NT2.0
             def typo_writer(typo_map, total_count, current_count, last_chr):
-                if current_count < total_count:
+                while current_count<total_count:
                     possible_typo = typo_map[last_chr]
                     if probability(90):
                         try:
@@ -972,27 +973,36 @@ def type(word_to_print,next_is_char):
                             typo = chr(random.randint(97, 122))
                     else:
                         typo = chr(random.randint(97, 122))
-                    pyautogui.write(typo)
+                    press_letter(typo)
+                    signal = detect_break()
+                    if signal == 0:
+                        return 0
                     current_count += 1
-
-                    typo_writer(typo_map, total_count, current_count, typo)
+                    last_chr = typo
 
             def typo_eraser(total_count):
                 for i in range(0, total_count):
-                    pyautogui.press("backspace")
+                    press_letter("backspace")
+                    signal = detect_break()
+                    if signal == 0:
+                        return 0
                 speed_control("type")
 
-            def typo_generator(typo_map, total_count, last_chr, rate):
-                if probability(rate):
-                    typo_writer(typo_map, total_count, 0, last_chr)
-                    speed_control("type")
-                    typo_eraser(total_count)
-
+            def typo_generator(typo_map, total_count, last_chr):
+                signal = typo_writer(typo_map, total_count, 0, last_chr)
+                if signal == 0:
+                    return 0
+                speed_control("type")
+                signal = typo_eraser(total_count)
+                if signal == 0:
+                    return 0
             NT20cursor_pos = 0
             while NT20cursor_pos<len(word_to_print):
                 count = 0
                 chars = word_to_print
-                typo_generator(typo_map, random.randint(1, 4), chars[NT20cursor_pos], Error_rate)
+                signal = typo_generator(typo_map, random.randint(1, 4), chars[NT20cursor_pos])
+                if signal == 0:
+                    break
                 press_letter(chars[NT20cursor_pos])
                 count += 1
                 NT20cursor_pos += 1
@@ -1046,4 +1056,3 @@ root.protocol("WM_DELETE_WINDOW", Exit)
 typing_thread.start()
 root.mainloop()
 typing_thread.join()
-
