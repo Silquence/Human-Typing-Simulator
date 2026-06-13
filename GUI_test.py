@@ -40,7 +40,7 @@ text = []
 original_mouse_position = (0,0)
 pause_triggered = False
 hybrid = False
-err_generator_model:str
+err_generator_model = "N/A"
 
 
 def slider_color(value, max_rate):
@@ -152,29 +152,32 @@ def update_ready_indicator():
     root.after(100, update_ready_indicator)
 update_ready_indicator()
 
-#typing 指示灯
-typing_label = ctk.CTkLabel(
+#current model 指示灯
+
+model_status = f"● Model: {err_generator_model}"
+model_label = ctk.CTkLabel(
     title_frame,
-    text="● Typing",
+    text=f"● Model: {err_generator_model}",
     font=("SF Pro Text", 12, "bold"),
     text_color="#007AFF"
 )
 
-def update_typing_indicator():
+def update_model_indicator():
     if is_on and pause_triggered == False:
-        if not typing_label.winfo_ismapped():
-            typing_label.pack(
+        if not model_label.winfo_ismapped():
+            model_label.pack(
                 side="right",
                 padx=(0, 5)
             )
-        typing_label.configure(
+        model_label.configure(
+            text=f"● Model: {err_generator_model}",
             text_color="#007AFF"
         )
     else:
-        if typing_label.winfo_ismapped():
-            typing_label.pack_forget()
-    root.after(100, update_typing_indicator)
-update_typing_indicator()
+        if model_label.winfo_ismapped():
+            model_label.pack_forget()
+    root.after(100, update_model_indicator)
+update_model_indicator()
 
 # 卡片式分组框
 group_box = ctk.CTkFrame(
@@ -454,7 +457,8 @@ def Reset():
     global is_on, cursor_pos, chars, \
         resume, count, text_changed, \
         Speed, Error_rate, Dynamic_Speed, \
-        Dynamic_err_rate,max_rate,pause_triggered, hybrid
+        Dynamic_err_rate,max_rate,pause_triggered, hybrid,\
+        err_generator_model
 
     #reset the paras to default
     is_on = False
@@ -478,6 +482,7 @@ def Reset():
     confirm_speed_button.configure(state = "normal")
     pause_triggered = False
     hybrid  = False
+    err_generator_model = "N/A"
 
 Reset_button = ctk.CTkButton(
     bottom_frame,
@@ -640,8 +645,6 @@ def tip_animation():
         tip_label.configure(text=tips[tip_index])
     root.after(200, tip_animation)
 tip_animation()
-
-
 
 #below is the backend code
 typo_map = {
@@ -895,7 +898,10 @@ def type(word_to_print,next_is_char):
             # time.sleep(0.1)
         return 0
 
-    global typo_map,cursor_pos,current_word_complete,Error_rate,Dynamic_err_rate,pause_triggered
+    global typo_map,cursor_pos,current_word_complete,\
+        Error_rate,Dynamic_err_rate,pause_triggered, err_generator_model
+
+    print(err_generator_model)
     current_word_complete = False
     typo_cursor = 0
     location:list[int]
@@ -903,66 +909,10 @@ def type(word_to_print,next_is_char):
         Error_rate += cursor_pos/100
 
     if probability(Error_rate):
-        if hybrid == True:
-            numTypos = random.randint(1,int(len(word_to_print)/2))
-            location = random.sample(range(0,len(word_to_print)),numTypos)
-            location.sort()
-            for i in range(0,len(word_to_print)):
-                if typo_cursor<len(location) and i == location[typo_cursor]:
-                    typo_cursor += 1
-                    press_letter(random.choice(typo_map[word_to_print[i]]))
-                    signal = detect_break()
-                    if signal == 0:
-                        return 0
-                else:
-                    press_letter(word_to_print[i])
-                    signal = detect_break()
-                    if signal == 0:
-                        return 0
-                speed_control("typing")
 
-            #percise correction starts here
-
-            for i in range(0,(len(word_to_print)-location[0])-1):
-                press_letter("left")
-                signal = detect_break()
-                if signal == 0:
-                    return 0
-                speed_control("cursor_move", (i, (len(word_to_print)-location[0])-1))
-            count = 0
-            while count < len(location):
-                #erase and write
-                press_letter("backspace")
-                time.sleep(random.uniform(0.1, 0.3))
-                signal = detect_break()
-                if signal == 0:
-                    return 0
-                press_letter(word_to_print[location[count]])
-
-                #skip cursor move for the last correction
-                if count == len(location)-1:
-                    count += 1
-                    continue
-
-                #move to next error loc
-                for i in range(location[count+1]-location[count]):
-                    press_letter("right")
-                    signal = detect_break()
-                    if signal == 0:
-                        return 0
-                    speed_control("cursor_move",(i,location[count+1]-location[count]))
-                count += 1
-
-            #move to the end of the current word
-            for i in range(len(word_to_print)-location[len(location)-1]-1):
-                press_letter("right")
-                signal = detect_break()
-                if signal == 0:
-                    return 0
-                speed_control("cursor_move", (i, len(word_to_print)-location[len(location)-1]-1))
-
-        else:
+        if hybrid == True and probability(35):
             #NT2.0
+            err_generator_model = "NT2.0G"
             def typo_writer(typo_map, total_count, current_count, last_chr):
                 while current_count<total_count:
                     possible_typo = typo_map[last_chr]
@@ -1006,8 +956,68 @@ def type(word_to_print,next_is_char):
                 press_letter(chars[NT20cursor_pos])
                 count += 1
                 NT20cursor_pos += 1
+        else:
+            #NT3.0
+            err_generator_model = "NT3.0"
+            numTypos = random.randint(1, int(len(word_to_print) / 2))
+            location = random.sample(range(0, len(word_to_print)), numTypos)
+            location.sort()
+            for i in range(0, len(word_to_print)):
+                if typo_cursor < len(location) and i == location[typo_cursor]:
+                    typo_cursor += 1
+                    press_letter(random.choice(typo_map[word_to_print[i]]))
+                    signal = detect_break()
+                    if signal == 0:
+                        return 0
+                else:
+                    press_letter(word_to_print[i])
+                    signal = detect_break()
+                    if signal == 0:
+                        return 0
+                speed_control("typing")
+
+            # percise correction starts here
+
+            for i in range(0, (len(word_to_print) - location[0]) - 1):
+                press_letter("left")
+                signal = detect_break()
+                if signal == 0:
+                    return 0
+                speed_control("cursor_move", (i, (len(word_to_print) - location[0]) - 1))
+            count = 0
+            while count < len(location):
+                # erase and write
+                press_letter("backspace")
+                time.sleep(random.uniform(0.1, 0.3))
+                signal = detect_break()
+                if signal == 0:
+                    return 0
+                press_letter(word_to_print[location[count]])
+
+                # skip cursor move for the last correction
+                if count == len(location) - 1:
+                    count += 1
+                    continue
+
+                # move to next error loc
+                for i in range(location[count + 1] - location[count]):
+                    press_letter("right")
+                    signal = detect_break()
+                    if signal == 0:
+                        return 0
+                    speed_control("cursor_move", (i, location[count + 1] - location[count]))
+                count += 1
+
+            # move to the end of the current word
+            for i in range(len(word_to_print) - location[len(location) - 1] - 1):
+                press_letter("right")
+                signal = detect_break()
+                if signal == 0:
+                    return 0
+                speed_control("cursor_move", (i, len(word_to_print) - location[len(location) - 1] - 1))
 
     else:
+        err_generator_model = "NT3.0"
         for i in range(0,len(word_to_print)):
             press_letter(word_to_print[i])
             signal = detect_break()
