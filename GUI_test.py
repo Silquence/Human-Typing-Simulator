@@ -911,7 +911,7 @@ def type(word_to_print,next_is_char):
 
     if probability(Error_rate):
 
-        if hybrid == True and probability(100):
+        if hybrid == True and probability(35):
             #NT2.0
             err_generator_model = "NT2.0G"
             def typo_writer(typo_map, total_count, current_count, last_chr):
