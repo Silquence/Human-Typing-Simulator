@@ -884,6 +884,7 @@ def detect_break():
                     return 0
 
             else:
+                pause_triggered = False
                 cursor_initializer()
 
 def type(word_to_print,next_is_char):
@@ -910,7 +911,7 @@ def type(word_to_print,next_is_char):
 
     if probability(Error_rate):
 
-        if hybrid == True and probability(35):
+        if hybrid == True and probability(100):
             #NT2.0
             err_generator_model = "NT2.0G"
             def typo_writer(typo_map, total_count, current_count, last_chr):
@@ -924,6 +925,7 @@ def type(word_to_print,next_is_char):
                     else:
                         typo = chr(random.randint(97, 122))
                     press_letter(typo)
+                    speed_control("type")
                     signal = detect_break()
                     if signal == 0:
                         return 0
@@ -933,10 +935,10 @@ def type(word_to_print,next_is_char):
             def typo_eraser(total_count):
                 for i in range(0, total_count):
                     press_letter("backspace")
+                    speed_control("type")
                     signal = detect_break()
                     if signal == 0:
                         return 0
-                speed_control("type")
 
             def typo_generator(typo_map, total_count, last_chr):
                 signal = typo_writer(typo_map, total_count, 0, last_chr)
@@ -953,6 +955,7 @@ def type(word_to_print,next_is_char):
                 signal = typo_generator(typo_map, random.randint(1, 3), chars[NT20cursor_pos])
                 if signal == 0:
                     break
+                time.sleep(random.uniform(0.1,0.3))
                 press_letter(chars[NT20cursor_pos])
                 count += 1
                 NT20cursor_pos += 1
