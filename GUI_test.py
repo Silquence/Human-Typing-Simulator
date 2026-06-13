@@ -950,7 +950,7 @@ def type(word_to_print,next_is_char):
             while NT20cursor_pos<len(word_to_print):
                 count = 0
                 chars = word_to_print
-                signal = typo_generator(typo_map, random.randint(1, 4), chars[NT20cursor_pos])
+                signal = typo_generator(typo_map, random.randint(1, 3), chars[NT20cursor_pos])
                 if signal == 0:
                     break
                 press_letter(chars[NT20cursor_pos])
