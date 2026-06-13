@@ -1063,6 +1063,8 @@ def typing_thrd():
             type(text[cursor_pos],next_is_char)
             cursor_pos += 1
 
+        time.sleep(0) #This prevents the GUI from freezing
+
 #below are the execution lines
 typing_thread = threading.Thread(target = typing_thrd)
 root.protocol("WM_DELETE_WINDOW", Exit)
