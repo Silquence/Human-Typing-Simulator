@@ -956,7 +956,7 @@ def typing_thrd():
             type(text[cursor_pos],next_is_char)
             cursor_pos += 1
 
-        time.sleep(0)
+        time.sleep(0) #this prevents the GUI from freezing
 
 #below are the execution lines
 typing_thread = threading.Thread(target = typing_thrd)
