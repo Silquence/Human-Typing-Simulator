@@ -6,6 +6,7 @@ import threading
 import subprocess
 import os
 import re
+import sys
 
 #cache file direction
 cache_dir = os.path.join(
@@ -427,7 +428,12 @@ def confirm_speed():
         content = textbox.get("1.0", "end-1c")
         cache.write(content)
     with open (cache_file_dir,"r") as cache:
-        text = re.findall(r'\.{3}|\w+|[^\w\s]', cache.read())
+        text = re.findall(
+            r'\n|\w+|[^\w\s]',
+            cache.read()
+        )
+    print(text)
+
 
     textbox.configure(state="disabled")
     time.sleep(0.05)
@@ -452,6 +458,7 @@ def Exit():
     global turn_off,is_on
     turn_off = True
     is_on = False
+    time.sleep(0.1)
     root.destroy()
 
 def Reset():
@@ -648,8 +655,6 @@ def tip_animation():
 tip_animation()
 
 
-
-
 #below is the backend code
 typo_map = {
         # Row 1
@@ -729,7 +734,7 @@ def cursor_initializer():
     pyautogui.moveTo(screen_width * 3 / 4,screen_height * 0.8,duration=0.1)
     pyautogui.click()
 
-    pyautogui.hotkey("ctrl","right")
+    pyautogui.hotkey("ctrl","end")
 
     original_mouse_position = pyautogui.position()
 
@@ -741,15 +746,21 @@ def speed_control(stage,cursor_data_pkg = (0,0),sleep_time = 0):#time elapsed be
     wait_time = 0.2 / Speed
     if stage == "typing":
         if Dynamic_Speed == True:
-            wait_time += cursor_pos/100
+            wait_time += random.uniform(0,cursor_pos/2000)
         time.sleep(random.uniform(wait_time,wait_time+0.05))
 
     elif stage == "cursor_move":
         if Dynamic_Speed == True:
-            wait_time += cursor_pos/100
+            wait_time += random.uniform(0,cursor_pos/2000)
         if cursor_data_pkg[1] - cursor_data_pkg[0] <3:
             wait_time += random.uniform(0.1,0.3)
         time.sleep(wait_time)
+
+    elif stage == "NT20":
+        wait_time = 0.05
+        if Dynamic_Speed == True:
+            wait_time += random.uniform(0,cursor_pos/2000)
+        time.sleep(random.uniform(wait_time,wait_time+0.02))
 
     #debug option
     elif stage == "debug":
@@ -760,19 +771,20 @@ def speed_control(stage,cursor_data_pkg = (0,0),sleep_time = 0):#time elapsed be
         time.sleep(random.uniform(0.3,2))
 
 def detect_break():
-    global is_on, pause_triggered,original_mouse_opsition
+    global is_on, pause_triggered,original_mouse_position
     if is_on == True:
         position = pyautogui.position()
-        if (position[0] > original_mouse_position[0] + 10
-            or position[1] > original_mouse_position[1] + 10
-            or position[0] < original_mouse_position[0] - 10
-            or position[1] < original_mouse_position[1] - 10):
+        if (position[0] > original_mouse_position[0] + 30
+            or position[1] > original_mouse_position[1] + 30
+            or position[0] < original_mouse_position[0] - 30
+            or position[1] < original_mouse_position[1] - 30):
             pause_triggered = True
 
             if pyautogui.confirm("Pause?", buttons = ["Yes","No"]) == "Yes":
                 if pyautogui.confirm("Continue?", buttons = ["Yes","No"]) == "Yes":
                     pause_triggered = False
                     cursor_initializer()
+
                 else:
                     is_on = False
                     pause_triggered = False
@@ -781,28 +793,34 @@ def detect_break():
                 pause_triggered = False
                 cursor_initializer()
 
-def type(word_to_print,next_is_char):
 
-    if ord(word_to_print[0])<65 or ord(word_to_print[0])>122:#special chars
+
+def type(word_to_print,next_is_char):
+    #this block of code deals with non-letter characters including 'enter'
+    if word_to_print ==  "\n":
+        pyautogui.press("enter")
+        return 1
+    elif ord(word_to_print[0])<65 or ord(word_to_print[0])>122:#special chars
         for i in range(0,len(word_to_print)):
             signal = detect_break()
             if signal == 0:
                 return 0
             pyautogui.press(word_to_print[i])
             speed_control("typing")
+        pyautogui.press(" ")
         return 0
 
     global typo_map,cursor_pos,current_word_complete,\
-        Error_rate,Dynamic_err_rate,pause_triggered, err_generator_model
+        Error_rate,Dynamic_err_rate,pause_triggered, err_generator_model,count
 
     print(err_generator_model)
     current_word_complete = False
     typo_cursor = 0
     location:list[int]
     if Dynamic_err_rate == True:
-        Error_rate += cursor_pos/100
+        Error_rate += cursor_pos/500
 
-    if probability(Error_rate):
+    if probability(Error_rate) and len(word_to_print) > 1:
 
         if hybrid == True and probability(35):
             #NT2.0
@@ -817,8 +835,9 @@ def type(word_to_print,next_is_char):
                             typo = chr(random.randint(97, 122))
                     else:
                         typo = chr(random.randint(97, 122))
+
                     pyautogui.press(typo)
-                    speed_control("type")
+                    speed_control("NT20")
                     signal = detect_break()
                     if signal == 0:
                         return 0
@@ -828,7 +847,7 @@ def type(word_to_print,next_is_char):
             def typo_eraser(total_count):
                 for i in range(0, total_count):
                     pyautogui.press("backspace")
-                    speed_control("type")
+                    speed_control("NT20")
                     signal = detect_break()
                     if signal == 0:
                         return 0
@@ -837,25 +856,27 @@ def type(word_to_print,next_is_char):
                 signal = typo_writer(typo_map, total_count, 0, last_chr)
                 if signal == 0:
                     return 0
-                speed_control("type")
+                speed_control("NT20")
                 signal = typo_eraser(total_count)
                 if signal == 0:
                     return 0
             NT20cursor_pos = 0
+
             while NT20cursor_pos<len(word_to_print):
-                count = 0
                 chars = word_to_print
-                signal = typo_generator(typo_map, random.randint(1, 3), chars[NT20cursor_pos])
-                if signal == 0:
-                    break
-                time.sleep(random.uniform(0.1,0.3))
+                if probability(Error_rate):
+                    signal = typo_generator(typo_map, random.randint(1, 3), chars[NT20cursor_pos])
+                    if signal == 0:
+                        break
+                    time.sleep(random.uniform(0.1,0.3))
                 pyautogui.press(chars[NT20cursor_pos])
-                count += 1
                 NT20cursor_pos += 1
+                count += 1
+
         else:
             #NT3.0
             err_generator_model = "NT3.0"
-            numTypos = random.randint(1, int(len(word_to_print) / 2))
+            numTypos = random.randint(1, int(len(word_to_print)/2))
             location = random.sample(range(0, len(word_to_print)), numTypos)
             location.sort()
             for i in range(0, len(word_to_print)):
@@ -921,7 +942,7 @@ def type(word_to_print,next_is_char):
                 return 0
             speed_control("typing")
 
-    if next_is_char:
+    if next_is_char and word_to_print != "\n":
         signal = detect_break()
         if signal == 0:
             return 0
@@ -935,11 +956,11 @@ def typing_thrd():
         resume, count, text_changed, \
         Speed, Error_rate, Dynamic_Speed, \
         Dynamic_err_rate,text,original_mouse_position, \
-        pause_triggered
+        pause_triggered,turn_off
 
     while not turn_off:
 
-        if cursor_pos == len(text): #end when complete
+        if cursor_pos == len(text) and len(text) > 0: #end when complete
             is_on = False
             cursor_pos = 0
             textbox.configure(state = "normal")
@@ -958,9 +979,13 @@ def typing_thrd():
 
         time.sleep(0) #this prevents the GUI from freezing
 
+
 #below are the execution lines
+
 typing_thread = threading.Thread(target = typing_thrd)
 typing_thread.start()
 root.protocol("WM_DELETE_WINDOW", Exit)
 root.mainloop()
-typing_thread.join()
+# typing_thread.join()
+
+
