@@ -458,7 +458,7 @@ def Exit():
     global turn_off,is_on
     turn_off = True
     is_on = False
-    time.sleep(0.1)
+    time.sleep(0.23)
     root.destroy()
 
 def Reset():
