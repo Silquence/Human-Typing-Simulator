@@ -897,18 +897,12 @@ def type(word_to_print,next_is_char):
 
             for i in range(0, (len(word_to_print) - location[0]) - 1):
                 pyautogui.press("left")
-                signal = detect_break()
-                if signal == 0:
-                    return 0
                 speed_control("cursor_move", (i, (len(word_to_print) - location[0]) - 1))
             count = 0
             while count < len(location):
                 # erase and write
                 pyautogui.press("backspace")
                 time.sleep(random.uniform(0.1, 0.3))
-                signal = detect_break()
-                if signal == 0:
-                    return 0
                 pyautogui.press(word_to_print[location[count]])
 
                 # skip cursor move for the last correction
@@ -919,19 +913,17 @@ def type(word_to_print,next_is_char):
                 # move to next error loc
                 for i in range(location[count + 1] - location[count]):
                     pyautogui.press("right")
-                    signal = detect_break()
-                    if signal == 0:
-                        return 0
                     speed_control("cursor_move", (i, location[count + 1] - location[count]))
                 count += 1
 
             # move to the end of the current word
             for i in range(len(word_to_print) - location[len(location) - 1] - 1):
                 pyautogui.press("right")
-                signal = detect_break()
-                if signal == 0:
-                    return 0
                 speed_control("cursor_move", (i, len(word_to_print) - location[len(location) - 1] - 1))
+
+            signal = detect_break()
+            if signal == 0:
+                return 0
 
     else:
         err_generator_model = "NT3.0"
