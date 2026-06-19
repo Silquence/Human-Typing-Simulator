@@ -42,6 +42,7 @@ original_mouse_position = (0,0)
 pause_triggered = False
 hybrid = False
 err_generator_model = "N/A"
+awaiting_current_word_to_finish = False
 
 
 def slider_color(value, max_rate):
@@ -99,35 +100,40 @@ title_label = ctk.CTkLabel(
 title_label.pack(side="left")
 
 #暂停指示灯
-pause_status_label = ctk.CTkLabel(
+pause_mode = "Paused"
+
+pause_label = ctk.CTkLabel(
     title_frame,
-    text="● Paused",
+    text="Paused",
     font=("SF Pro Text", 12, "bold"),
-    text_color="#FF3B30"
+    text_color="#007AFF"
 )
 
 def update_pause_indicator():
-    if pause_triggered:
-        if not pause_status_label.winfo_ismapped():
-            pause_status_label.pack(
+    global awaiting_current_word_to_finish, pause_mode
+    if awaiting_current_word_to_finish == True:
+        pause_mode = "● Pause After Finishing Current Word"
+        pause_color = "#FF78A0"
+    else:
+        pause_mode = "● Paused"
+        pause_color = "#7C0A02"
+
+    if is_on and pause_triggered:
+        if not model_label.winfo_ismapped():
+            model_label.pack(
                 side="right",
                 padx=(0, 5)
             )
-        pause_status_label.configure(
-            text_color="#FF3B30"
+        model_label.configure(
+            text=pause_mode,
+            text_color=pause_color
         )
     else:
-        if pause_status_label.winfo_ismapped():
-            pause_status_label.pack_forget()
-    root.after(100, update_pause_indicator)
-update_pause_indicator()
+        if pause_label.winfo_ismapped():
+            pause_label.pack_forget()
+    root.after(10, update_pause_indicator)
 
-pause_status_label = ctk.CTkLabel(
-    title_frame,
-    text="● Paused",
-    font=("SF Pro Text", 12, "bold"),
-    text_color="#FF3B30"
-)
+update_pause_indicator()
 
 #ready_label 指示灯
 ready_label = ctk.CTkLabel(
@@ -154,7 +160,6 @@ def update_ready_indicator():
 update_ready_indicator()
 
 #current model 指示灯
-
 model_status = f"● Model: {err_generator_model}"
 model_label = ctk.CTkLabel(
     title_frame,
@@ -164,7 +169,7 @@ model_label = ctk.CTkLabel(
 )
 
 def update_model_indicator():
-    if is_on and pause_triggered == False:
+    if is_on and pause_triggered == False and awaiting_current_word_to_finish == False:
         if not model_label.winfo_ismapped():
             model_label.pack(
                 side="right",
@@ -466,7 +471,7 @@ def Reset():
         resume, count, text_changed, \
         Speed, Error_rate, Dynamic_Speed, \
         Dynamic_err_rate,max_rate,pause_triggered, hybrid,\
-        err_generator_model
+        err_generator_model, awaiting_current_word_to_finish
 
     #reset the paras to default
     is_on = False
@@ -491,6 +496,7 @@ def Reset():
     pause_triggered = False
     hybrid  = False
     err_generator_model = "N/A"
+    awaiting_current_word_to_finish = False
 
 Reset_button = ctk.CTkButton(
     bottom_frame,
@@ -770,28 +776,42 @@ def speed_control(stage,cursor_data_pkg = (0,0),sleep_time = 0):#time elapsed be
     if probability(random.uniform(1,1.5)):
         time.sleep(random.uniform(0.3,2))
 
-def detect_break():
-    global is_on, pause_triggered,original_mouse_position
-    if is_on == True:
-        position = pyautogui.position()
-        if (position[0] > original_mouse_position[0] + 30
-            or position[1] > original_mouse_position[1] + 30
-            or position[0] < original_mouse_position[0] - 30
-            or position[1] < original_mouse_position[1] - 30):
-            pause_triggered = True
 
-            if pyautogui.confirm("Pause?", buttons = ["Yes","No"]) == "Yes":
-                if pyautogui.confirm("Continue?", buttons = ["Yes","No"]) == "Yes":
+def detect_break(action = None):
+    global is_on, pause_triggered,original_mouse_position,awaiting_current_word_to_finish
+    if action == None:
+        if is_on == True:
+            position = pyautogui.position()
+            if (position[0] > original_mouse_position[0] + 30
+                or position[1] > original_mouse_position[1] + 30
+                or position[0] < original_mouse_position[0] - 30
+                or position[1] < original_mouse_position[1] - 30):
+                pause_triggered = True
+
+                if pyautogui.confirm("Pause?", buttons = ["Yes","No"]) == "Yes":
+                    if pyautogui.confirm("Continue?", buttons = ["Yes","No"]) == "Yes":
+                        pause_triggered = False
+                        cursor_initializer()
+
+                    else:
+                        is_on = False
+                        pause_triggered = False
+                        return 0
+                else:
                     pause_triggered = False
                     cursor_initializer()
 
-                else:
-                    is_on = False
-                    pause_triggered = False
-                    return 0
-            else:
-                pause_triggered = False
-                cursor_initializer()
+    elif action == "set flag":
+        if is_on == True:
+            position = pyautogui.position()
+            if (position[0] > original_mouse_position[0] + 30
+                    or position[1] > original_mouse_position[1] + 30
+                    or position[0] < original_mouse_position[0] - 30
+                    or position[1] < original_mouse_position[1] - 30):
+
+                awaiting_current_word_to_finish = True
+                pause_triggered = True
+
 
 
 
@@ -898,12 +918,14 @@ def type(word_to_print,next_is_char):
             for i in range(0, (len(word_to_print) - location[0]) - 1):
                 pyautogui.press("left")
                 speed_control("cursor_move", (i, (len(word_to_print) - location[0]) - 1))
+                detect_break("set flag")
             count = 0
             while count < len(location):
                 # erase and write
                 pyautogui.press("backspace")
                 time.sleep(random.uniform(0.1, 0.3))
                 pyautogui.press(word_to_print[location[count]])
+                detect_break("set flag")
 
                 # skip cursor move for the last correction
                 if count == len(location) - 1:
@@ -914,16 +936,31 @@ def type(word_to_print,next_is_char):
                 for i in range(location[count + 1] - location[count]):
                     pyautogui.press("right")
                     speed_control("cursor_move", (i, location[count + 1] - location[count]))
+                    detect_break("set flag")
                 count += 1
 
             # move to the end of the current word
             for i in range(len(word_to_print) - location[len(location) - 1] - 1):
                 pyautogui.press("right")
+                detect_break("set flag")
                 speed_control("cursor_move", (i, len(word_to_print) - location[len(location) - 1] - 1))
 
-            signal = detect_break()
-            if signal == 0:
-                return 0
+            #pauses only after typing+erasing is complete
+            global awaiting_current_word_to_finish
+            if awaiting_current_word_to_finish == True:
+                awaiting_current_word_to_finish = False
+                if pyautogui.confirm("Pause?", buttons = ["Yes","No"]) == "Yes":
+                    if pyautogui.confirm("Continue?", buttons = ["Yes","No"]) == "Yes":
+                        pause_triggered = False
+                        cursor_initializer()
+                    else:
+                        is_on = False
+                        pause_triggered = False
+                        return 0
+                else:
+                    pause_triggered = False
+                    cursor_initializer()
+
 
     else:
         err_generator_model = "NT3.0"
@@ -973,7 +1010,14 @@ def typing_thrd():
 
 
 #below are the execution lines
+def debug():
+    global awaiting_current_word_to_finish
+    while not turn_off:
+        print(awaiting_current_word_to_finish)
+        time.sleep(0.1)
 
+debug_thread = threading.Thread(target=debug)
+debug_thread.start()
 typing_thread = threading.Thread(target = typing_thrd)
 typing_thread.start()
 root.protocol("WM_DELETE_WINDOW", Exit)
