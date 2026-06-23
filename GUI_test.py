@@ -6,6 +6,7 @@ import threading
 import subprocess
 import os
 import re
+import sys
 
 #cache file direction
 cache_dir = os.path.join(
@@ -41,6 +42,7 @@ original_mouse_position = (0,0)
 pause_triggered = False
 hybrid = False
 err_generator_model = "N/A"
+awaiting_current_word_to_finish = False
 
 
 def slider_color(value, max_rate):
@@ -98,35 +100,40 @@ title_label = ctk.CTkLabel(
 title_label.pack(side="left")
 
 #暂停指示灯
-pause_status_label = ctk.CTkLabel(
+pause_mode = "Paused"
+
+pause_label = ctk.CTkLabel(
     title_frame,
-    text="● Paused",
+    text="Paused",
     font=("SF Pro Text", 12, "bold"),
-    text_color="#FF3B30"
+    text_color="#007AFF"
 )
 
 def update_pause_indicator():
-    if pause_triggered:
-        if not pause_status_label.winfo_ismapped():
-            pause_status_label.pack(
+    global awaiting_current_word_to_finish, pause_mode
+    if awaiting_current_word_to_finish == True:
+        pause_mode = "● Pause After Finishing Current Word"
+        pause_color = "#FF78A0"
+    else:
+        pause_mode = "● Paused"
+        pause_color = "#7C0A02"
+
+    if is_on and pause_triggered:
+        if not model_label.winfo_ismapped():
+            model_label.pack(
                 side="right",
                 padx=(0, 5)
             )
-        pause_status_label.configure(
-            text_color="#FF3B30"
+        model_label.configure(
+            text=pause_mode,
+            text_color=pause_color
         )
     else:
-        if pause_status_label.winfo_ismapped():
-            pause_status_label.pack_forget()
-    root.after(100, update_pause_indicator)
-update_pause_indicator()
+        if pause_label.winfo_ismapped():
+            pause_label.pack_forget()
+    root.after(10, update_pause_indicator)
 
-pause_status_label = ctk.CTkLabel(
-    title_frame,
-    text="● Paused",
-    font=("SF Pro Text", 12, "bold"),
-    text_color="#FF3B30"
-)
+update_pause_indicator()
 
 #ready_label 指示灯
 ready_label = ctk.CTkLabel(
@@ -153,7 +160,6 @@ def update_ready_indicator():
 update_ready_indicator()
 
 #current model 指示灯
-
 model_status = f"● Model: {err_generator_model}"
 model_label = ctk.CTkLabel(
     title_frame,
@@ -163,7 +169,7 @@ model_label = ctk.CTkLabel(
 )
 
 def update_model_indicator():
-    if is_on and pause_triggered == False:
+    if is_on and pause_triggered == False and awaiting_current_word_to_finish == False:
         if not model_label.winfo_ismapped():
             model_label.pack(
                 side="right",
@@ -427,7 +433,12 @@ def confirm_speed():
         content = textbox.get("1.0", "end-1c")
         cache.write(content)
     with open (cache_file_dir,"r") as cache:
-        text = re.findall(r'\.{3}|\w+|[^\w\s]', cache.read())
+        text = re.findall(
+            r'\n|\w+|[^\w\s]',
+            cache.read()
+        )
+    print(text)
+
 
     textbox.configure(state="disabled")
     time.sleep(0.05)
@@ -449,8 +460,10 @@ confirm_speed_button = ctk.CTkButton(
 confirm_speed_button.pack(side="right")
 
 def Exit():
-    global turn_off
+    global turn_off,is_on
     turn_off = True
+    is_on = False
+    time.sleep(0.23)
     root.destroy()
 
 def Reset():
@@ -458,7 +471,7 @@ def Reset():
         resume, count, text_changed, \
         Speed, Error_rate, Dynamic_Speed, \
         Dynamic_err_rate,max_rate,pause_triggered, hybrid,\
-        err_generator_model
+        err_generator_model, awaiting_current_word_to_finish
 
     #reset the paras to default
     is_on = False
@@ -483,6 +496,7 @@ def Reset():
     pause_triggered = False
     hybrid  = False
     err_generator_model = "N/A"
+    awaiting_current_word_to_finish = False
 
 Reset_button = ctk.CTkButton(
     bottom_frame,
@@ -646,6 +660,7 @@ def tip_animation():
     root.after(200, tip_animation)
 tip_animation()
 
+
 #below is the backend code
 typo_map = {
         # Row 1
@@ -791,7 +806,7 @@ key_map = {
     ")": 29,
 }
 
-def press_letter(char):
+def press_button(char):
     code = key_map[char.lower()]
     if char.isupper() or (char in "!@#$%^&*()_+{}|\\:\"'<>?~`"):
         subprocess.run(["osascript","-e",
@@ -820,13 +835,14 @@ def cursor_initializer():
     pyautogui.moveTo(screen_width * 3 / 4,screen_height * 0.8,duration=0.1)
     pyautogui.click()
 
-    subprocess.run(["osascript","-e",
-        '''
-        tell application "System Events"
-            key code 125 using {command down}
-        end tell
-        '''
-    ]) #文末定位
+    subprocess.run(["osascript", "-e",
+                    '''
+                    tell application "System Events"
+                        key code 125 using {command down}
+                    end tell
+                    '''
+                    ])  # 文末定位
+
     original_mouse_position = pyautogui.position()
 
 cursor_pos = 0
@@ -837,15 +853,21 @@ def speed_control(stage,cursor_data_pkg = (0,0),sleep_time = 0):#time elapsed be
     wait_time = 0.2 / Speed
     if stage == "typing":
         if Dynamic_Speed == True:
-            wait_time += cursor_pos/100
+            wait_time += random.uniform(0,cursor_pos/2000)
         time.sleep(random.uniform(wait_time,wait_time+0.05))
 
     elif stage == "cursor_move":
         if Dynamic_Speed == True:
-            wait_time += cursor_pos/100
+            wait_time += random.uniform(0,cursor_pos/2000)
         if cursor_data_pkg[1] - cursor_data_pkg[0] <3:
             wait_time += random.uniform(0.1,0.3)
         time.sleep(wait_time)
+
+    elif stage == "NT20":
+        wait_time = 0.05
+        if Dynamic_Speed == True:
+            wait_time += random.uniform(0,cursor_pos/2000)
+        time.sleep(random.uniform(wait_time,wait_time+0.02))
 
     #debug option
     elif stage == "debug":
@@ -855,61 +877,81 @@ def speed_control(stage,cursor_data_pkg = (0,0),sleep_time = 0):#time elapsed be
     if probability(random.uniform(1,1.5)):
         time.sleep(random.uniform(0.3,2))
 
-def detect_break():
-    global is_on, pause_triggered,original_mouse_opsition
-    if is_on == True:
-        position = pyautogui.position()
-        if (position[0] > original_mouse_position[0] + 10
-            or position[1] > original_mouse_position[1] + 10
-            or position[0] < original_mouse_position[0] - 10
-            or position[1] < original_mouse_position[1] - 10):
-            pause_triggered = True
-            choice = subprocess.run(
-                ["osascript","-e",
-                    'button returned of (display dialog "Pause?" buttons {"No", "Yes"} default button "Yes")'
-                ],capture_output=True,text=True).stdout.strip()
-            if choice == "Yes":
+
+def detect_break(action = None):
+    global is_on, pause_triggered,original_mouse_position,awaiting_current_word_to_finish
+    if action == None:
+        if is_on == True:
+            position = pyautogui.position()
+            if (position[0] > original_mouse_position[0] + 30
+                or position[1] > original_mouse_position[1] + 30
+                or position[0] < original_mouse_position[0] - 30
+                or position[1] < original_mouse_position[1] - 30):
+                pause_triggered = True
 
                 choice = subprocess.run(
                     ["osascript", "-e",
-                     'button returned of (display dialog "Continue?" buttons {"Exit", "Continue"} default button "Continue")'
-                ], capture_output=True, text=True).stdout.strip()
-                if choice == "Continue":
-                    pause_triggered = False
-                    cursor_initializer()
-                else:
-                    is_on = False
-                    pause_triggered = False
-                    cursor_initializer()
-                    return 0
+                     'button returned of (display dialog "Pause?" buttons {"No", "Yes"} default button "Yes")'
+                     ], capture_output=True, text=True).stdout.strip()
+                if choice == "Yes":
 
-            else:
-                pause_triggered = False
-                cursor_initializer()
+                    choice = subprocess.run(
+                        ["osascript", "-e",
+                         'button returned of (display dialog "Continue?" buttons {"Exit", "Continue"} default button "Continue")'
+                         ], capture_output=True, text=True).stdout.strip()
+                    if choice == "Continue":
+                        pause_triggered = False
+                        cursor_initializer()
+                    else:
+                        is_on = False
+                        pause_triggered = False
+                        cursor_initializer()
+                        return 0
+
+                else:
+                    pause_triggered = False
+                    cursor_initializer()
+
+    elif action == "set flag":
+        if is_on == True:
+            position = pyautogui.position()
+            if (position[0] > original_mouse_position[0] + 30
+                    or position[1] > original_mouse_position[1] + 30
+                    or position[0] < original_mouse_position[0] - 30
+                    or position[1] < original_mouse_position[1] - 30):
+
+                awaiting_current_word_to_finish = True
+                pause_triggered = True
+
+
+
 
 def type(word_to_print,next_is_char):
-
-    if ord(word_to_print[0])<65 or ord(word_to_print[0])>122:#special chars
+    #this block of code deals with non-letter characters including 'enter'
+    if word_to_print ==  "\n":
+        press_button("enter")
+        return 1
+    elif ord(word_to_print[0])<65 or ord(word_to_print[0])>122:#special chars
         for i in range(0,len(word_to_print)):
             signal = detect_break()
             if signal == 0:
                 return 0
-            press_letter(word_to_print[i])
+            press_button(word_to_print[i])
             speed_control("typing")
-            # time.sleep(0.1)
+        press_button.press(" ")
         return 0
 
     global typo_map,cursor_pos,current_word_complete,\
-        Error_rate,Dynamic_err_rate,pause_triggered, err_generator_model
+        Error_rate,Dynamic_err_rate,pause_triggered, err_generator_model,count
 
     print(err_generator_model)
     current_word_complete = False
     typo_cursor = 0
     location:list[int]
     if Dynamic_err_rate == True:
-        Error_rate += cursor_pos/100
+        Error_rate += cursor_pos/500
 
-    if probability(Error_rate):
+    if probability(Error_rate) and len(word_to_print) > 1:
 
         if hybrid == True and probability(35):
             #NT2.0
@@ -924,8 +966,9 @@ def type(word_to_print,next_is_char):
                             typo = chr(random.randint(97, 122))
                     else:
                         typo = chr(random.randint(97, 122))
-                    press_letter(typo)
-                    speed_control("type")
+
+                    press_button(typo)
+                    speed_control("NT20")
                     signal = detect_break()
                     if signal == 0:
                         return 0
@@ -934,8 +977,8 @@ def type(word_to_print,next_is_char):
 
             def typo_eraser(total_count):
                 for i in range(0, total_count):
-                    press_letter("backspace")
-                    speed_control("type")
+                    press_button("backspace")
+                    speed_control("NT20")
                     signal = detect_break()
                     if signal == 0:
                         return 0
@@ -944,36 +987,38 @@ def type(word_to_print,next_is_char):
                 signal = typo_writer(typo_map, total_count, 0, last_chr)
                 if signal == 0:
                     return 0
-                speed_control("type")
+                speed_control("NT20")
                 signal = typo_eraser(total_count)
                 if signal == 0:
                     return 0
             NT20cursor_pos = 0
+
             while NT20cursor_pos<len(word_to_print):
-                count = 0
                 chars = word_to_print
-                signal = typo_generator(typo_map, random.randint(1, 3), chars[NT20cursor_pos])
-                if signal == 0:
-                    break
-                time.sleep(random.uniform(0.1,0.3))
-                press_letter(chars[NT20cursor_pos])
-                count += 1
+                if probability(Error_rate):
+                    signal = typo_generator(typo_map, random.randint(1, 3), chars[NT20cursor_pos])
+                    if signal == 0:
+                        break
+                    time.sleep(random.uniform(0.1,0.3))
+                press_button(chars[NT20cursor_pos])
                 NT20cursor_pos += 1
+                count += 1
+
         else:
             #NT3.0
             err_generator_model = "NT3.0"
-            numTypos = random.randint(1, int(len(word_to_print) / 2))
+            numTypos = random.randint(1, int(len(word_to_print)/2))
             location = random.sample(range(0, len(word_to_print)), numTypos)
             location.sort()
             for i in range(0, len(word_to_print)):
                 if typo_cursor < len(location) and i == location[typo_cursor]:
                     typo_cursor += 1
-                    press_letter(random.choice(typo_map[word_to_print[i]]))
+                    press_button(random.choice(typo_map[word_to_print[i]]))
                     signal = detect_break()
                     if signal == 0:
                         return 0
                 else:
-                    press_letter(word_to_print[i])
+                    press_button(word_to_print[i])
                     signal = detect_break()
                     if signal == 0:
                         return 0
@@ -982,20 +1027,16 @@ def type(word_to_print,next_is_char):
             # percise correction starts here
 
             for i in range(0, (len(word_to_print) - location[0]) - 1):
-                press_letter("left")
-                signal = detect_break()
-                if signal == 0:
-                    return 0
+                press_button("left")
                 speed_control("cursor_move", (i, (len(word_to_print) - location[0]) - 1))
+                detect_break("set flag")
             count = 0
             while count < len(location):
                 # erase and write
-                press_letter("backspace")
+                press_button("backspace")
                 time.sleep(random.uniform(0.1, 0.3))
-                signal = detect_break()
-                if signal == 0:
-                    return 0
-                press_letter(word_to_print[location[count]])
+                press_button(word_to_print[location[count]])
+                detect_break("set flag")
 
                 # skip cursor move for the last correction
                 if count == len(location) - 1:
@@ -1004,35 +1045,58 @@ def type(word_to_print,next_is_char):
 
                 # move to next error loc
                 for i in range(location[count + 1] - location[count]):
-                    press_letter("right")
-                    signal = detect_break()
-                    if signal == 0:
-                        return 0
+                    press_button("right")
                     speed_control("cursor_move", (i, location[count + 1] - location[count]))
+                    detect_break("set flag")
                 count += 1
 
             # move to the end of the current word
             for i in range(len(word_to_print) - location[len(location) - 1] - 1):
-                press_letter("right")
-                signal = detect_break()
-                if signal == 0:
-                    return 0
+                press_button("right")
+                detect_break("set flag")
                 speed_control("cursor_move", (i, len(word_to_print) - location[len(location) - 1] - 1))
+
+            #pauses only after typing+erasing is complete
+            global awaiting_current_word_to_finish
+
+            choice = subprocess.run(
+                ["osascript", "-e",
+                 'button returned of (display dialog "Pause?" buttons {"No", "Yes"} default button "Yes")'
+                 ], capture_output=True, text=True).stdout.strip()
+            if choice == "Yes":
+
+                choice = subprocess.run(
+                    ["osascript", "-e",
+                     'button returned of (display dialog "Continue?" buttons {"Exit", "Continue"} default button "Continue")'
+                     ], capture_output=True, text=True).stdout.strip()
+                if choice == "Continue":
+                    pause_triggered = False
+                    cursor_initializer()
+                else:
+                    is_on = False
+                    pause_triggered = False
+                    cursor_initializer()
+                    return 0
+
+            else:
+                pause_triggered = False
+                cursor_initializer()
+
 
     else:
         err_generator_model = "NT3.0"
         for i in range(0,len(word_to_print)):
-            press_letter(word_to_print[i])
+            press_button(word_to_print[i])
             signal = detect_break()
             if signal == 0:
                 return 0
             speed_control("typing")
 
-    if next_is_char:
+    if next_is_char and word_to_print != "\n":
         signal = detect_break()
         if signal == 0:
             return 0
-        press_letter("space")
+        press_button("space")
         speed_control("typing")
     else:
         return 0
@@ -1042,11 +1106,11 @@ def typing_thrd():
         resume, count, text_changed, \
         Speed, Error_rate, Dynamic_Speed, \
         Dynamic_err_rate,text,original_mouse_position, \
-        pause_triggered
+        pause_triggered,turn_off
 
     while not turn_off:
 
-        if cursor_pos == len(text): #end when complete
+        if cursor_pos == len(text) and len(text) > 0: #end when complete
             is_on = False
             cursor_pos = 0
             textbox.configure(state = "normal")
@@ -1063,11 +1127,22 @@ def typing_thrd():
             type(text[cursor_pos],next_is_char)
             cursor_pos += 1
 
-        time.sleep(0) #This prevents the GUI from freezing
+        time.sleep(0) #this prevents the GUI from freezing
+
 
 #below are the execution lines
+def debug():
+    global awaiting_current_word_to_finish
+    while not turn_off:
+        print(awaiting_current_word_to_finish)
+        time.sleep(0.1)
+
+debug_thread = threading.Thread(target=debug)
+debug_thread.start()
 typing_thread = threading.Thread(target = typing_thrd)
-root.protocol("WM_DELETE_WINDOW", Exit)
 typing_thread.start()
+root.protocol("WM_DELETE_WINDOW", Exit)
 root.mainloop()
-typing_thread.join()
+# typing_thread.join()
+
+
