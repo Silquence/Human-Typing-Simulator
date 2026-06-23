@@ -780,6 +780,7 @@ key_map = {
     "left":123,
     "right":124,
     "space":49,
+    " ":49,
     "down":125,
 
     #special character
@@ -938,7 +939,7 @@ def type(word_to_print,next_is_char):
                 return 0
             press_button(word_to_print[i])
             speed_control("typing")
-        press_button.press(" ")
+        # press_button("space")
         return 0
 
     global typo_map,cursor_pos,current_word_complete,\
