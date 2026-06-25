@@ -131,7 +131,7 @@ def update_pause_indicator():
     else:
         if pause_label.winfo_ismapped():
             pause_label.pack_forget()
-    root.after(10, update_pause_indicator)
+    root.after(1, update_pause_indicator)
 
 update_pause_indicator()
 
@@ -227,7 +227,6 @@ def get_err_rate(value):
         text=f"{value:.1f}"
     )
 
-    print(Error_rate)
 
 err_rate_slider = ctk.CTkSlider(
     group_box,
@@ -302,8 +301,6 @@ def get_speed(value):
         text=f"{value:.1f}"
     )
 
-    print(Speed)
-
 speed_slider = ctk.CTkSlider(
     group_box,
     from_=1,
@@ -353,12 +350,10 @@ speed_value_label.grid(
 def toggle_t1():
     global Dynamic_err_rate
     Dynamic_err_rate = not Dynamic_err_rate
-    print(Dynamic_err_rate)
 
 def toggle_t2():
     global Dynamic_Speed
     Dynamic_Speed = not Dynamic_Speed
-    print(Dynamic_Speed)
 
 def toggle_t3():
     global hybrid
@@ -424,7 +419,7 @@ bottom_frame.pack(
 )
 
 def confirm_speed():
-    global text, is_on,cursor_pos,count,pause_triggered
+    global text, is_on,cursor_pos,count,pause_triggered,key_map
     cursor_pos = 0
     count = 0
     confirm_speed_button.configure(state="normal")
@@ -434,17 +429,32 @@ def confirm_speed():
         cache.write(content)
     with open (cache_file_dir,"r") as cache:
         text = re.findall(
-            r'\n|\w+|[^\w\s]',
+            r'\n|[ \t]+|\w+|[^\w\s]',
             cache.read()
         )
-    print(text)
 
 
-    textbox.configure(state="disabled")
-    time.sleep(0.05)
-    cursor_initializer()
+    error_flag = False
+    for token in text:
+        try:
+            key_map[token]
+        except KeyError:
+            subprocess.run(
+                ["osascript", "-e",
+                 'button returned of (display dialog "Unexpected character detected" buttons {"Yes"} default button "Yes")'
+                 ], capture_output=True, text=True).stdout.strip()
+            error_flag = True
+            print(error_flag)
+            break
 
-    is_on = True
+    if error_flag == False:
+        textbox.configure(state="disabled")
+        time.sleep(0.05)
+        cursor_initializer()
+        is_on = True
+    else:
+        Reset()
+
 
 confirm_speed_button = ctk.CTkButton(
     bottom_frame,
@@ -1093,14 +1103,14 @@ def type(word_to_print,next_is_char):
                 return 0
             speed_control("typing")
 
-    if next_is_char and word_to_print != "\n":
-        signal = detect_break()
-        if signal == 0:
-            return 0
-        press_button("space")
-        speed_control("typing")
-    else:
-        return 0
+    # if next_is_char and word_to_print != "\n":
+    #     signal = detect_break()
+    #     if signal == 0:
+    #         return 0
+    #     press_button("space")
+    #     speed_control("typing")
+    # else:
+    #     return 0
 
 def typing_thrd():
     global is_on, cursor_pos, chars,\
@@ -1133,9 +1143,9 @@ def typing_thrd():
 
 #below are the execution lines
 def debug():
-    global awaiting_current_word_to_finish
+    global awaiting_current_word_to_finish,pause_mode
     while not turn_off:
-        print(awaiting_current_word_to_finish)
+
         time.sleep(0.1)
 
 debug_thread = threading.Thread(target=debug)
