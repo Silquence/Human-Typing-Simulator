@@ -441,7 +441,7 @@ def confirm_speed():
             unexpected_char = token
             subprocess.run(
                 ["osascript", "-e",
-                 f'button returned of (display dialog "Unexpected Character {unexpected_char} detected" buttons {{"Yes"}} default button "Yes")'
+                 f'button returned of (display dialog "Unexpected Character \'{unexpected_char}\' detected" buttons {{"Yes"}} default button "Yes")'
                  ], capture_output=True, text=True).stdout.strip()
             error_flag = True
             print(error_flag)
