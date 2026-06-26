@@ -786,11 +786,13 @@ key_map = {
     "m": 46,
     ".": 47,
     "`": 50,
+    " ": 49,
+
+    #functional
     "backspace":51,
     "left":123,
     "right":124,
     "space":49,
-    " ":49,
     "down":125,
 
     #special character
