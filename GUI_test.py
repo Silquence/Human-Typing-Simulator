@@ -437,9 +437,7 @@ def confirm_speed():
     error_flag = False
     unexpected_char : str
     for token in text:
-        try:
-            key_map[token]
-        except KeyError:
+        if token.isascii() == False:
             unexpected_char = token
             subprocess.run(
                 ["osascript", "-e",
