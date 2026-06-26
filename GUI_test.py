@@ -435,13 +435,15 @@ def confirm_speed():
 
 
     error_flag = False
+    unexpected_char : str
     for token in text:
         try:
             key_map[token]
         except KeyError:
+            unexpected_char = token
             subprocess.run(
                 ["osascript", "-e",
-                 'button returned of (display dialog "Unexpected character detected" buttons {"Yes"} default button "Yes")'
+                 f'button returned of (display dialog "Unexpected Character {unexpected_char} detected" buttons {{"Yes"}} default button "Yes")'
                  ], capture_output=True, text=True).stdout.strip()
             error_flag = True
             print(error_flag)
