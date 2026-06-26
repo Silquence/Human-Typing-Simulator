@@ -434,17 +434,28 @@ def confirm_speed():
         cache.write(content)
     with open (cache_file_dir,"r") as cache:
         text = re.findall(
-            r'\n|\w+|[^\w\s]',
+            r'\n|[ \t]+|\w+|[^\w\s]',
             cache.read()
         )
-    print(text)
 
+    #varification
+    error_flag = False
+    unexpected_char:str
+    for token in text:
+        if token.isascii() == False:
+            error_flag = True
+            unexpected_char = token
+            break
 
-    textbox.configure(state="disabled")
-    time.sleep(0.05)
-    cursor_initializer()
+    if error_flag == False:
+        textbox.configure(state="disabled")
+        time.sleep(0.05)
+        cursor_initializer()
+        is_on = True
+    else:
+        pyautogui.confirm(f"Unexpected Characters \"{unexpected_char}\" Detected")
+        Reset()
 
-    is_on = True
 
 confirm_speed_button = ctk.CTkButton(
     bottom_frame,
@@ -827,7 +838,7 @@ def type(word_to_print,next_is_char):
                 return 0
             pyautogui.press(word_to_print[i])
             speed_control("typing")
-        pyautogui.press(" ")
+        # pyautogui.press(" ")
         return 0
 
     global typo_map,cursor_pos,current_word_complete,\
