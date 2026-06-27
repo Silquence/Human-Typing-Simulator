@@ -1,0 +1,4 @@
+([('Human Typing Simulator',
+   '/Users/enzezhou/Documents/GitHub/Human-Typing-Simulator/dist/Human Typing '
+   'Simulator',
+   'EXECUTABLE')],)

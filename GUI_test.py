@@ -419,6 +419,7 @@ bottom_frame.pack(
 )
 
 def confirm_speed():
+    print('pressed')
     global text, is_on,cursor_pos,count,pause_triggered,key_map
     cursor_pos = 0
     count = 0
@@ -440,7 +441,7 @@ def confirm_speed():
         if token.isascii() == False:
             unexpected_char = token
             subprocess.run(
-                ["osascript", "-e",
+                ["/usr/bin/osascript", "-e",
                  f'button returned of (display dialog "Unexpected Character \'{unexpected_char}\' detected" buttons {{"Yes"}} default button "Yes")'
                  ], capture_output=True, text=True).stdout.strip()
             error_flag = True
@@ -485,7 +486,7 @@ def Reset():
 
     #reset the paras to default
     is_on = False
-    confirm_speed_button.configure(state = "disabled")
+    confirm_speed_button.configure(state = "normal")
 
     Error_rate = 2
     Speed = 10
@@ -502,7 +503,6 @@ def Reset():
     textbox.configure(state="normal")
     cursor_pos = 0
     count = 0
-    confirm_speed_button.configure(state = "normal")
     pause_triggered = False
     hybrid  = False
     err_generator_model = "N/A"
@@ -822,14 +822,14 @@ key_map = {
 def press_button(char):
     code = key_map[char.lower()]
     if char.isupper() or (char in "!@#$%^&*()_+{}|\\:\"'<>?~`"):
-        subprocess.run(["osascript","-e",
+        subprocess.run(["/usr/bin/osascript","-e",
         f'''
         tell application "System Events"
             key code {code} using {{shift down}}
         end tell
         '''])
     else:
-        subprocess.run(["osascript","-e",
+        subprocess.run(["/usr/bin/osascript","-e",
         f'''
         tell application "System Events"
             key code {code}
@@ -848,7 +848,7 @@ def cursor_initializer():
     pyautogui.moveTo(screen_width * 3 / 4,screen_height * 0.8,duration=0.1)
     pyautogui.click()
 
-    subprocess.run(["osascript", "-e",
+    subprocess.run(["/usr/bin/osascript", "-e",
                     '''
                     tell application "System Events"
                         key code 125 using {command down}
@@ -903,13 +903,13 @@ def detect_break(action = None):
                 pause_triggered = True
 
                 choice = subprocess.run(
-                    ["osascript", "-e",
+                    ["/usr/bin/osascript", "-e",
                      'button returned of (display dialog "Pause?" buttons {"No", "Yes"} default button "Yes")'
                      ], capture_output=True, text=True).stdout.strip()
                 if choice == "Yes":
 
                     choice = subprocess.run(
-                        ["osascript", "-e",
+                        ["/usr/bin/osascript", "-e",
                          'button returned of (display dialog "Continue?" buttons {"Exit", "Continue"} default button "Continue")'
                          ], capture_output=True, text=True).stdout.strip()
                     if choice == "Continue":
@@ -1073,13 +1073,13 @@ def type(word_to_print,next_is_char):
             global awaiting_current_word_to_finish
 
             choice = subprocess.run(
-                ["osascript", "-e",
+                ["/usr/bin/osascript", "-e",
                  'button returned of (display dialog "Pause?" buttons {"No", "Yes"} default button "Yes")'
                  ], capture_output=True, text=True).stdout.strip()
             if choice == "Yes":
 
                 choice = subprocess.run(
-                    ["osascript", "-e",
+                    ["/usr/bin/osascript", "-e",
                      'button returned of (display dialog "Continue?" buttons {"Exit", "Continue"} default button "Continue")'
                      ], capture_output=True, text=True).stdout.strip()
                 if choice == "Continue":
@@ -1142,20 +1142,37 @@ def typing_thrd():
 
         time.sleep(0) #this prevents the GUI from freezing
 
+#below are the debug execution lines
+# debug_thread = threading.Thread(target=debug)
+# debug_thread.start()
 
 #below are the execution lines
-def debug():
-    global awaiting_current_word_to_finish,pause_mode
-    while not turn_off:
 
-        time.sleep(0.1)
-
-debug_thread = threading.Thread(target=debug)
-debug_thread.start()
+#this hides the terminal
+subprocess.run([
+    "/usr/bin/osascript",
+    "-e",
+    f'''
+    tell application "System Events"
+        keystroke "h" using command down
+    end tell
+    '''
+])
+#this pushes the GUI to the front
+root.lift()
+root.focus_force()
+root.attributes("-topmost", True)
+root.after(100, lambda: root.attributes("-topmost", False))
+#applciation logic
 typing_thread = threading.Thread(target = typing_thrd)
 typing_thread.start()
 root.protocol("WM_DELETE_WINDOW", Exit)
 root.mainloop()
-# typing_thread.join()
+typing_thread.join()
+
+#this closes the terminal window
+os.system("exit")
 
 
+
+#pyinstaller --clean --noconfirm --onefile --windowed --noupx --name "Human Typing Simulator" --icon icon.icns GUI_test.py
