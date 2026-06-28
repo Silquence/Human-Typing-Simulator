@@ -703,7 +703,7 @@ root.mainloop()
 # Human Typing Simulator Beta
 # 内部版号: HumanTypingSimulator v1.0.0B
 # 发行版号（公测）: Human Typing Simulator Beta
-# Copyright (c) 2026 by Zhouenzay
+# Copyright (c) 2026 by EZhouWorks
 # Written by Mr.ZhouEnZe
 ################################################
 
