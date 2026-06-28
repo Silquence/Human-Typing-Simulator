@@ -1175,4 +1175,4 @@ os.system("exit")
 
 
 
-#pyinstaller --clean --noconfirm --onefile --windowed --noupx --name "Human Typing Simulator" --icon icon.icns GUI_test.py
+#pyinstaller --clean --noconfirm --onefile --windowed --noupx --name "Human Typing Simulator" --icon icon.icns HumanTypingSimulatorFE.py

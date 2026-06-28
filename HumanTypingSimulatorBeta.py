@@ -718,7 +718,7 @@ typing_thread.start()
 root.mainloop()
 typing_thread.join()
 
-#pyinstaller --clean --noconfirm --windowed --onefile --icon=icon.icns --name "Human Typing Simulator beta" keyboard_simu.py
+#pyinstaller --clean --noconfirm --windowed --onefile --icon=icon.icns --name "Human Typing Simulator beta" HumanTypingSimulatorBeta.py
 
 
 
