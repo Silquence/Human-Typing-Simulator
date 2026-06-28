@@ -1171,6 +1171,6 @@ os.system("exit")
 # Human Typing Simulator Founder's Edition
 # 内部版号: HumanTypingSimulator v3.0.0R
 # 发行版号: Human Typing Simulator v1.0.0
-# Copyright (c) 2026 by Zhouenzay
+# Copyright (c) 2026 by EZhouWorks
 # Written by Mr.ZhouEnZe
 ################################################
