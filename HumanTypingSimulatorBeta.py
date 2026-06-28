@@ -696,7 +696,7 @@ root.protocol("WM_DELETE_WINDOW", Exit)
 typing_thread.start()
 root.mainloop()
 
-#pyinstaller --clean --noconfirm --windowed --onefile --icon=icon.ico --name "Human Typing Simulator" keyboard_simu.py
+#pyinstaller --clean --noconfirm --windowed --onefile --icon=icon.ico --name "Human Typing Simulator" HumanTypingSimulatorBeta.py
 
 
 

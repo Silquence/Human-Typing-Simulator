@@ -1,1 +1,2 @@
-修复中断逻辑触发时光标移动到GUI页面的问题
+Human Typing Simulator Beta 已结束公测  
+Human Typing Simulator v1.0.0 Founder's Edition 已正式上线
