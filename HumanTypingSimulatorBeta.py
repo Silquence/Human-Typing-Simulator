@@ -6,8 +6,6 @@ import threading
 import subprocess
 import os
 
-# 保持原有的后端全局变量和逻辑不动
-
 #cache file direction
 cache_dir = os.path.join(
     os.path.expanduser("~"),
@@ -101,7 +99,7 @@ group_box.grid_columnconfigure(0, weight=1)
 group_box.grid_columnconfigure(1, weight=5)
 group_box.grid_columnconfigure(2, weight=1)
 
-# --- 1. ERROR RATE 控制行 ---
+# Error Rate 滑块
 err_title = ctk.CTkLabel(
     group_box,
     text="Error Rate",
@@ -176,7 +174,7 @@ err_value_label.grid(
     pady=(25, 12)
 )
 
-# --- 2. TYPING SPEED 控制行 ---
+# Typing Speed 滑块
 speed_title = ctk.CTkLabel(
     group_box,
     text="Typing Speed",
@@ -251,7 +249,7 @@ speed_value_label.grid(
     pady=12
 )
 
-# --- 3. DYNAMIC SWITCHES ---
+# 动态功能开关
 def toggle_t1():
     global Dynamic_err_rate
     Dynamic_err_rate = not Dynamic_err_rate
@@ -300,7 +298,7 @@ toggle_t2_button = ctk.CTkSwitch(
 
 toggle_t2_button.pack(anchor="w", pady=6)
 
-# --- 底部动作栏 ---
+# 底部按钮
 bottom_frame = ctk.CTkFrame(
     main_frame,
     fg_color="transparent"
@@ -718,9 +716,16 @@ typing_thread.start()
 root.mainloop()
 typing_thread.join()
 
+#below is the packing code
 #pyinstaller --clean --noconfirm --windowed --onefile --icon=icon.icns --name "Human Typing Simulator beta" HumanTypingSimulatorBeta.py
 
-
+################################################
+# Human Typing Simulator Beta
+# 内部版号: HumanTypingSimulator v1.0.0B
+# 发行版号（公测）: Human Typing Simulator Beta
+# Copyright (c) 2026 by Zhouenzay
+# Written by Mr.ZhouEnZe
+################################################
 
 
 
