@@ -1,4 +1,13 @@
-**Human Typing Simulator v1.0.0 Founder's Edition**
+<table>
+  <tr>
+    <td valign="middle">
+      <img src="icon.png" width="40">
+    </td>
+    <td valign="middle">
+      <strong>Human Typing Simulator v1.0.0 Founder's Edition</strong>
+    </td>
+  </tr>
+</table>
 
 **版本摘要：**  
 此为Human Typing Simulator 创始人版 首次发布，版号v1.0.0  
