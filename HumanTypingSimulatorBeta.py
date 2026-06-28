@@ -18,7 +18,6 @@ if not os.path.exists(cache_file):
     with open(cache_dir, "w", encoding="utf-8") as f:
         f.write("cache initialized")
 
-
 # 后端全局变量
 Error_rate = 2
 Speed = 10
@@ -44,7 +43,7 @@ def slider_color(value, max_rate):
         b = 0
     return f"#{r:02x}{g:02x}{b:02x}"
 
-# --- macOS Tahoe 风格 UI 初始化 ---
+# UI风格初始化
 ctk.set_appearance_mode("light")
 ctk.set_default_color_theme("blue")
 
@@ -91,7 +90,7 @@ group_box.grid_columnconfigure(0, weight=1)
 group_box.grid_columnconfigure(1, weight=5)
 group_box.grid_columnconfigure(2, weight=1)
 
-# --- 1. ERROR RATE 控制行 ---
+# Error rate 滑杆
 err_title = ctk.CTkLabel(
     group_box,
     text="Error Rate",
@@ -166,7 +165,7 @@ err_value_label.grid(
     pady=(25, 12)
 )
 
-# --- 2. TYPING SPEED 控制行 ---
+# Typing Speed 滑杆
 speed_title = ctk.CTkLabel(
     group_box,
     text="Typing Speed",
@@ -193,8 +192,6 @@ def get_speed(value):
     speed_value_label.configure(
         text=f"{value:.1f}"
     )
-
-    print(Speed)
 
 speed_slider = ctk.CTkSlider(
     group_box,
@@ -241,7 +238,7 @@ speed_value_label.grid(
     pady=12
 )
 
-# --- 3. DYNAMIC SWITCHES ---
+# 动态功能开关
 def toggle_t1():
     global Dynamic_err_rate
     Dynamic_err_rate = not Dynamic_err_rate
@@ -290,7 +287,7 @@ toggle_t2_button = ctk.CTkSwitch(
 
 toggle_t2_button.pack(anchor="w", pady=6)
 
-# --- 底部动作栏 ---
+# 底部按钮
 bottom_frame = ctk.CTkFrame(
     main_frame,
     fg_color="transparent"
@@ -689,14 +686,27 @@ def typing_thrd():
             if Dynamic_Speed:
                 Speed += random.uniform(0.00001,0.00005)
 
-
 typing_thread = threading.Thread(target=typing_thrd)
+
 #below is the execution code
 root.protocol("WM_DELETE_WINDOW", Exit)
 typing_thread.start()
 root.mainloop()
 
+#below is the packing script
 #pyinstaller --clean --noconfirm --windowed --onefile --icon=icon.ico --name "Human Typing Simulator" HumanTypingSimulatorBeta.py
+
+
+
+
+################################################
+# Human Typing Simulator Beta
+# 内部版号: HumanTypingSimulator v1.0.0B
+# 发行版号（公测）: Human Typing Simulator Beta
+# Copyright (c) 2026 by Zhouenzay
+# Written by Mr.ZhouEnZe
+################################################
+
 
 
 

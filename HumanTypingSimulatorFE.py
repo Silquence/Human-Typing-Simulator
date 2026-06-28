@@ -199,7 +199,7 @@ group_box.grid_columnconfigure(0, weight=1)
 group_box.grid_columnconfigure(1, weight=5)
 group_box.grid_columnconfigure(2, weight=1)
 
-# --- 1. ERROR RATE 控制行 ---
+# Error rate 滑块
 err_title = ctk.CTkLabel(
     group_box,
     text="Error Rate",
@@ -227,7 +227,6 @@ def get_err_rate(value):
         text=f"{value:.1f}"
     )
 
-    print(Error_rate)
 
 err_rate_slider = ctk.CTkSlider(
     group_box,
@@ -274,7 +273,7 @@ err_value_label.grid(
     pady=(25, 12)
 )
 
-# --- 2. TYPING SPEED 控制行 ---
+# Typing Speed 滑块
 speed_title = ctk.CTkLabel(
     group_box,
     text="Typing Speed",
@@ -349,7 +348,7 @@ speed_value_label.grid(
     pady=12
 )
 
-# --- 3. DYNAMIC SWITCHES ---
+# 动态动能开关
 def toggle_t1():
     global Dynamic_err_rate
     Dynamic_err_rate = not Dynamic_err_rate
@@ -411,7 +410,7 @@ toggle_t3_button = ctk.CTkSwitch(
 )
 toggle_t3_button.pack(anchor="w", pady=6)
 
-# --- 底部动作栏 ---
+# 底部按钮
 bottom_frame = ctk.CTkFrame(
     main_frame,
     fg_color="transparent"
@@ -1021,18 +1020,25 @@ def typing_thrd():
 
 
 #below are the execution lines
-def debug():
-    global awaiting_current_word_to_finish
-    while not turn_off:
-        print(awaiting_current_word_to_finish)
-        time.sleep(0.1)
-
-debug_thread = threading.Thread(target=debug)
-debug_thread.start()
+# def debug():
+#     global awaiting_current_word_to_finish
+#     while not turn_off:
+#         print(awaiting_current_word_to_finish)
+#         time.sleep(0.1)
+#debug_thread = threading.Thread(target=debug)
+#debug_thread.start()
 typing_thread = threading.Thread(target = typing_thrd)
 typing_thread.start()
 root.protocol("WM_DELETE_WINDOW", Exit)
 root.mainloop()
 # typing_thread.join()
+
+####################################################################
+# Human Typing Simulator Founder's Edition
+# 内部版号: HumanTypingSimulator v3.0.0R
+# 发行版号: Human Typing Simulator v1.0.0 Founder's Edition
+# Copyright (c) 2026 by Zhouenzay
+# Written by Mr.ZhouEnZe
+####################################################################
 
 
