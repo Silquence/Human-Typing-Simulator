@@ -1070,7 +1070,7 @@ def type(word_to_print,next_is_char):
                 speed_control("cursor_move", (i, len(word_to_print) - location[len(location) - 1] - 1))
 
             #pauses only after typing+erasing is complete
-            global awaiting_current_word_to_finish
+            global awaiting_current_word_to_finish, is_on
 
             choice = subprocess.run(
                 ["/usr/bin/osascript", "-e",
