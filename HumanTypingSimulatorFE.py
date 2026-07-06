@@ -817,6 +817,7 @@ key_map = {
     "*": 28,
     "(": 25,
     ")": 29,
+    "enter": 36
 }
 
 def press_button(char):
@@ -1071,29 +1072,30 @@ def type(word_to_print,next_is_char):
 
             #pauses only after typing+erasing is complete
             global awaiting_current_word_to_finish, is_on
-
-            choice = subprocess.run(
-                ["/usr/bin/osascript", "-e",
-                 'button returned of (display dialog "Pause?" buttons {"No", "Yes"} default button "Yes")'
-                 ], capture_output=True, text=True).stdout.strip()
-            if choice == "Yes":
-
+            if awaiting_current_word_to_finish == True:
+                awaiting_current_word_to_finish = False
                 choice = subprocess.run(
                     ["/usr/bin/osascript", "-e",
-                     'button returned of (display dialog "Continue?" buttons {"Exit", "Continue"} default button "Continue")'
+                     'button returned of (display dialog "Pause?" buttons {"No", "Yes"} default button "Yes")'
                      ], capture_output=True, text=True).stdout.strip()
-                if choice == "Continue":
-                    pause_triggered = False
-                    cursor_initializer()
-                else:
-                    is_on = False
-                    pause_triggered = False
-                    cursor_initializer()
-                    return 0
+                if choice == "Yes":
 
-            else:
-                pause_triggered = False
-                cursor_initializer()
+                    choice = subprocess.run(
+                        ["/usr/bin/osascript", "-e",
+                         'button returned of (display dialog "Continue?" buttons {"Exit", "Continue"} default button "Continue")'
+                         ], capture_output=True, text=True).stdout.strip()
+                    if choice == "Continue":
+                        pause_triggered = False
+                        cursor_initializer()
+                    else:
+                        is_on = False
+                        pause_triggered = False
+                        cursor_initializer()
+                        return 0
+
+                else:
+                    pause_triggered = False
+                    cursor_initializer()
 
 
     else:
