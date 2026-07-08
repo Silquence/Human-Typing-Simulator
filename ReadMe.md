@@ -1,3 +1,9 @@
+![Static Badge](https://img.shields.io/badge/Product_of-EZhouWorks-black)  
+![Static Badge](https://img.shields.io/badge/Windows-Ready-blue)
+![Static Badge](https://img.shields.io/badge/MacOS-Ready-blue)
+![Static Badge](https://img.shields.io/badge/NaturalType-2.0-yellow)
+![Static Badge](https://img.shields.io/badge/NaturalType-3.0-green)
+
 <table>
   <tr>
     <td valign="middle">
