@@ -4,7 +4,7 @@
   <h1>Human Typing Simulator v1.0.0 Founder's Edition</h1>
 
   <p>
-    <img alt="Product of EZhouWorks" src="https://img.shields.io/badge/Product_of-EZhouWorks-black">
+    <img alt="Product of EZhouWorks" src="https://img.shields.io/badge/Product_of-Silquence-black">
     <img alt="Windows Ready" src="https://img.shields.io/badge/Windows-Ready-blue">
     <img alt="MacOS Ready" src="https://img.shields.io/badge/MacOS-Ready-blue">
     <img alt="NaturalType 2.0" src="https://img.shields.io/badge/NaturalType-2.0-yellow">
